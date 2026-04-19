@@ -1,8 +1,8 @@
 "use client"
 
-import { Separator } from "@/components/ui/separator"
-import { IconSql } from "@tabler/icons-react"
+import { IconChevronRight, IconSql } from "@tabler/icons-react"
 import { AvatarDropdown } from "./avatar-dropdown"
+import { NavBreadcrumb } from "./nav-breadcrumb"
 
 
 export function SiteHeader() {
@@ -11,10 +11,8 @@ export function SiteHeader() {
       <div className="flex justify-between w-full pr-4">
         <div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">
           <IconSql />
-          <Separator
-            orientation="vertical"
-            className="mx-2 data-[orientation=vertical]:h-4"
-          />
+          <IconChevronRight className="size-3.5 text-muted-foreground" />
+          <NavBreadcrumb />
         </div>
         <AvatarDropdown />
       </div>
