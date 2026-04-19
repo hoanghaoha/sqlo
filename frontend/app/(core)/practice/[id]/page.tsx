@@ -31,7 +31,7 @@ const Page = () => {
           <ExerciseTopic {...exercise} />
         </TabsContent>
         <TabsContent forceMount value="assignment" className="flex-1 min-h-0 overflow-hidden data-[state=inactive]:hidden">
-          <ExerciseSqlEditor datasetId={dataset.id} />
+          <ExerciseSqlEditor exerciseId={id} />
         </TabsContent>
       </Tabs>
     </div >

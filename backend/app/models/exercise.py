@@ -14,3 +14,15 @@ class CreateExerciseRequest(BaseModel):
     topics: list[str]
     level: LevelEnum
     additional_input: str | None = None
+
+
+class SubmitRequest(BaseModel):
+    sql: str
+
+
+class HintRequest(BaseModel):
+    sql: str
+    dataset_schema: str
+    exercise_name: str
+    exercise_description: str
+    solution: str
