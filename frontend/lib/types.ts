@@ -10,12 +10,11 @@ export interface Dataset {
   id: string
   user_id: string
   name: string
-  description?: string
-  industry?: string
-  size?: number
+  description: string
+  industry: string
+  size: number
   row_count: number
   schema: {}
-  db_path?: string
-  visibility?: string
+  db_path: string
   created_at: string
 }

@@ -67,7 +67,7 @@ def _upload_to_storage(local_path: str, storage_path: str):
         raise e
 
 
-def get_dataset_table(db_path: str, table_name):
+def query_dataset(db_path: str, query: str):
     res = supabase.storage.from_("datasets").download(db_path)
     local_db_path = f"{settings.sqlite_base_path}/{db_path}"
 
@@ -79,7 +79,7 @@ def get_dataset_table(db_path: str, table_name):
 
     cursor = conn.cursor()
 
-    cursor.execute(f"SELECT * FROM {table_name}")
+    cursor.execute(query)
     rows = cursor.fetchall()
 
     columns = [col[0] for col in cursor.description]

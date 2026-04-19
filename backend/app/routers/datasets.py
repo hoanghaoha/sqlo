@@ -3,8 +3,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from app.auth.jwt import get_current_user
 from app.db import supabase
-from app.models.dataset import CreateDatasetRequest
-from app.services.dataset import create_dataset, get_dataset_table
+from app.models.dataset import (
+    CreateDatasetRequest,
+    QueryDatasetRequest,
+    UpdateDatasetRequest,
+)
+from app.services.dataset import create_dataset, query_dataset
 
 router = APIRouter()
 
@@ -23,7 +27,7 @@ async def create_dataset_endpoint(
 
 
 @router.get("/")
-async def get_datasets(user_id: str = Depends(get_current_user)):
+async def get_datasets_endpoint(user_id: str = Depends(get_current_user)):
     result = (
         supabase.table("datasets")
         .select("*")
@@ -36,7 +40,9 @@ async def get_datasets(user_id: str = Depends(get_current_user)):
 
 
 @router.get("/{dataset_id}")
-async def get_dataset(dataset_id: str, user_id: str = Depends(get_current_user)):
+async def get_dataset_endpoint(
+    dataset_id: str, user_id: str = Depends(get_current_user)
+):
     result = (
         supabase.table("datasets")
         .select("*")
@@ -52,8 +58,43 @@ async def get_dataset(dataset_id: str, user_id: str = Depends(get_current_user))
     return result.data
 
 
+@router.patch("/{dataset_id}")
+async def update_dataset_endpoint(
+    dataset_id: str,
+    body: UpdateDatasetRequest,
+    user_id: str = Depends(get_current_user),
+):
+    existing = (
+        supabase.table("datasets")
+        .select("id")
+        .eq("id", dataset_id)
+        .eq("user_id", user_id)
+        .single()
+        .execute()
+    )
+
+    if not existing.data:
+        raise HTTPException(status_code=404, detail="Dataset not found")
+
+    updates = body.model_dump(exclude_none=True)
+    if not updates:
+        raise HTTPException(status_code=400, detail="No fields to update")
+
+    result = (
+        supabase.table("datasets")
+        .update(updates)
+        .eq("id", dataset_id)
+        .eq("user_id", user_id)
+        .execute()
+    )
+
+    return result.data[0]
+
+
 @router.delete("/{dataset_id}")
-async def delete_dataset(dataset_id: str, user_id: str = Depends(get_current_user)):
+async def delete_dataset_endpoint(
+    dataset_id: str, user_id: str = Depends(get_current_user)
+):
     result = (
         supabase.table("datasets")
         .select("db_path")
@@ -89,5 +130,28 @@ async def get_dataset_table_endpoint(
     )
     if not result.data:
         raise HTTPException(status_code=404, detail="Dataset not found")
-    table = get_dataset_table(result.data["db_path"], table_name)  # type: ignore
+
+    table = query_dataset(result.data["db_path"], f"SELECT * FROM {table_name}")  # type: ignore
+    return table
+
+
+@router.post("/{dataset_id}")
+async def query_dataset_endpoint(
+    body: QueryDatasetRequest, dataset_id: str, user_id: str = Depends(get_current_user)
+):
+    result = (
+        supabase.table("datasets")
+        .select("db_path")
+        .eq("id", dataset_id)
+        .eq("user_id", user_id)
+        .single()
+        .execute()
+    )
+    if not result.data:
+        raise HTTPException(status_code=404, detail="Dataset not found")
+
+    try:
+        table = query_dataset(result.data["db_path"], body.query)  # type: ignore
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
     return table

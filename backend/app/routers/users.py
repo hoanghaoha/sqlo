@@ -7,7 +7,7 @@ router = APIRouter()
 
 
 @router.post("/onboard")
-async def onboard_user(user_id: str = Depends(get_current_user)):
+async def onboard_user_endpoint(user_id: str = Depends(get_current_user)):
     existing = supabase.table("users").select("id").eq("id", user_id).execute()
 
     if existing.data:
@@ -18,13 +18,13 @@ async def onboard_user(user_id: str = Depends(get_current_user)):
 
 
 @router.get("/me")
-async def get_me(user_id: str = Depends(get_current_user)):
+async def get_me_endpoint(user_id: str = Depends(get_current_user)):
     result = supabase.table("users").select("*").eq("id", user_id).single().execute()
     return result.data
 
 
 @router.put("/me")
-async def update_me(body: UserUpdate, user_id: str = Depends(get_current_user)):
+async def update_me_endpoint(body: UserUpdate, user_id: str = Depends(get_current_user)):
     supabase.table("users").update(body.model_dump(exclude_none=True)).eq(
         "id", user_id
     ).execute()

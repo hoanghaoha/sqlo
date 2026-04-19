@@ -27,6 +27,15 @@ class CreateDatasetRequest(BaseModel):
     size: SizeEnum = SizeEnum.medium
 
 
+class UpdateDatasetRequest(BaseModel):
+    name: str | None = None
+    description: str | None = None
+
+
 class GetDatasetTableRequest(BaseModel):
     db_path: str
     table_name: str
+
+
+class QueryDatasetRequest(BaseModel):
+    query: str
