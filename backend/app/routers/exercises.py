@@ -7,8 +7,21 @@ from app.services.exercise import create_exercise
 router = APIRouter()
 
 
+@router.get("/")
+async def get_user_exercises_endpoint(user_id: str = Depends(get_current_user)):
+    result = (
+        supabase.table("exercises")
+        .select("*")
+        .eq("user_id", user_id)
+        .order("created_at", desc=True)
+        .execute()
+    )
+
+    return result.data
+
+
 @router.get("/{dataset_id}")
-async def get_exercises_endpoint(
+async def get_dataset_exercises_endpoint(
     dataset_id: str, user_id: str = Depends(get_current_user)
 ):
     result = (
@@ -17,6 +30,22 @@ async def get_exercises_endpoint(
         .eq("dataset_id", dataset_id)
         .eq("user_id", user_id)
         .order("created_at", desc=True)
+        .execute()
+    )
+
+    return result.data
+
+
+@router.get("/exercise/{exercises_id}")
+async def get_exercise_endpoint(
+    exercises_id: str, user_id: str = Depends(get_current_user)
+):
+    result = (
+        supabase.table("exercises")
+        .select("*")
+        .eq("user_id", user_id)
+        .eq("id", exercises_id)
+        .single()
         .execute()
     )
 

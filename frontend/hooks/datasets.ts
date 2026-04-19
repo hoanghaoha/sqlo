@@ -19,9 +19,10 @@ export function useDataset(id: string) {
   const [dataset, setDataset] = useState<Dataset | null>(null)
 
   const load = useCallback(async () => {
+    if (!id) return
     const data = await apiFetch<Dataset>(`/datasets/${id}`)
     setDataset(data)
-  }, [])
+  }, [id])
 
   useEffect(() => { load() }, [load])
 
