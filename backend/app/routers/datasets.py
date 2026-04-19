@@ -1,5 +1,3 @@
-"use client"
-
 from fastapi import APIRouter, Depends, HTTPException
 from app.auth.jwt import get_current_user
 from app.db import supabase

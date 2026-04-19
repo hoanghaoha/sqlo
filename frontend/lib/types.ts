@@ -18,3 +18,12 @@ export interface Dataset {
   db_path: string
   created_at: string
 }
+
+export interface Exercise {
+  id: string
+  name: string
+  description: string
+  topics: string[]
+  level: string
+  solution: string
+}

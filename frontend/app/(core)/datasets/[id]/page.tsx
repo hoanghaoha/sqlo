@@ -1,5 +1,6 @@
 "use client"
 
+import DatasetExercise from "@/components/dataset/dataset-exercise"
 import DatasetSettings from "@/components/dataset/dataset-settings"
 import DatasetSqlEditor from "@/components/dataset/dataset-sql-editor"
 import DatasetTables from "@/components/dataset/dataset-tables"
@@ -24,20 +25,22 @@ const Page = () => {
           <TabsTrigger value="schema">Schema</TabsTrigger>
           <TabsTrigger value="tables">Tables</TabsTrigger>
           <TabsTrigger value="editor">SQL Editor</TabsTrigger>
-          <TabsTrigger value="problems">Problems</TabsTrigger>
+          <TabsTrigger value="exercises">Exercises</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
         <TabsContent forceMount value="schema" className="flex-1 min-h-0 data-[state=inactive]:hidden">
           <SchemaVisualizer schema={dataset.schema as any} />
         </TabsContent>
-        <TabsContent forceMount value="tables" className="flex gap-2 min-h-0 flex-1 overflow-hidden p-2 data-[state=inactive]:hidden">
+        <TabsContent forceMount value="tables" className="flex gap-2 min-h-0 flex-1 overflow-hidden data-[state=inactive]:hidden">
           <DatasetTables {...dataset} />
         </TabsContent>
         <TabsContent forceMount value="editor" className="flex-1 min-h-0 overflow-hidden data-[state=inactive]:hidden">
           <DatasetSqlEditor datasetId={id} />
         </TabsContent>
-        <TabsContent forceMount value="problems" className="data-[state=inactive]:hidden">{dataset?.db_path}</TabsContent>
-        <TabsContent forceMount value="settings" className="p-2 data-[state=inactive]:hidden">
+        <TabsContent forceMount value="exercises" className="data-[state=inactive]:hidden">
+          <DatasetExercise datasetId={id} />
+        </TabsContent>
+        <TabsContent forceMount value="settings" className="data-[state=inactive]:hidden p-4">
           <DatasetSettings dataset={dataset} onUpdated={refresh} onDeleted={() => router.push("/datasets")} />
         </TabsContent>
       </Tabs>

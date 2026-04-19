@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import datasets, users
+from app.routers import datasets, exercises, users
 
 app = FastAPI(title="Sqlo API", version="0.1.0")
 
@@ -17,8 +17,7 @@ app.add_middleware(
 
 app.include_router(users.router, prefix="/users", tags=["users"])
 app.include_router(datasets.router, prefix="/datasets", tags=["datasets"])
-# app.include_router(problems.router, prefix="/problems", tags=["problems"])
-# app.include_router(practice.router, prefix="/practice", tags=["practice"])
+app.include_router(exercises.router, prefix="/exercises", tags=["excercises"])
 
 
 @app.get("/health")
