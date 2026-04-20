@@ -3,6 +3,7 @@
 import {
   SidebarGroup,
   SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -10,8 +11,10 @@ import {
 import Link from "next/link"
 
 export function NavMain({
+  label,
   items,
 }: {
+  label: string,
   items: {
     title: string
     url: string
@@ -20,6 +23,9 @@ export function NavMain({
 }) {
   return (
     <SidebarGroup>
+      <SidebarGroupLabel>
+        {label}
+      </SidebarGroupLabel>
       <SidebarGroupContent className="flex flex-col gap-2">
         <SidebarMenu>
           {items.map((item) => (

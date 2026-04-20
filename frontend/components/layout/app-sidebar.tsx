@@ -16,7 +16,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain label="Workspace" items={data.navWorkpsace} />
+        <NavMain label="Community" items={data.navCommnity} />
+        <NavMain label="More" items={data.navMore} />
       </SidebarContent>
       <SidebarFooter>
         <SidebarTrigger />

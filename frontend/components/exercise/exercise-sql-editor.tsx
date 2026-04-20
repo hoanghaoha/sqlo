@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { apiFetch } from "@/lib/api"
 import { Button } from "../ui/button"
-import { IconArrowsVertical, IconBulb, IconChecks, IconClearFormatting, IconFlask, IconPuzzle, IconX } from "@tabler/icons-react"
+import { IconArrowsVertical, IconBackspace, IconBulb, IconChecks, IconClearFormatting, IconFlask, IconPuzzle, IconX } from "@tabler/icons-react"
 import CodeMirror from "@uiw/react-codemirror"
 import { sql } from "@codemirror/lang-sql"
 import { oneDark } from "@codemirror/theme-one-dark"
@@ -162,6 +162,10 @@ const ExerciseSqlEditor = ({ exerciseId }: { exerciseId: string }) => {
           </Button>
         </div>
         <div className="flex gap-2">
+          <Button size="sm" variant={"outline"} onClick={() => setQuery(format(query))}>
+            <IconBackspace />
+            Remove comments
+          </Button>
           <Button size="sm" variant={"outline"} onClick={() => setQuery(format(query))}>
             <IconClearFormatting />
             Format

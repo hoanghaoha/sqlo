@@ -1,7 +1,7 @@
-import { IconDashboard, IconDatabase, IconTreadmill } from "@tabler/icons-react"
+import { IconBrain, IconChessKing, IconChevronsUp, IconDashboard, IconDatabase, IconHeartShare, IconTreadmill, IconTriangleSquareCircle } from "@tabler/icons-react"
 
 export const data = {
-  navMain: [
+  navWorkpsace: [
     {
       title: "Dashboard",
       url: "/dashboard",
@@ -23,6 +23,46 @@ export const data = {
       icon: (
         <IconTreadmill
         />
+      ),
+    },
+    {
+      title: "AI Teacher",
+      url: "/ai",
+      icon: (
+        <IconBrain
+        />
+      ),
+    },
+  ],
+  navCommnity: [
+    {
+      title: "LeaderBoard",
+      url: "/leaderboard",
+      icon: (
+        <IconChessKing />
+      ),
+    },
+    {
+      title: "Exercises",
+      url: "/exercises",
+      icon: (
+        <IconTriangleSquareCircle />
+      ),
+    },
+  ],
+  navMore: [
+    {
+      title: "Feedback",
+      url: "/feedback",
+      icon: (
+        <IconHeartShare />
+      ),
+    },
+    {
+      title: "Upgrade Plan",
+      url: "/plan",
+      icon: (
+        <IconChevronsUp />
       ),
     },
   ],
