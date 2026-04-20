@@ -13,64 +13,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover"
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "../ui/command"
 import { IconPlus, IconX, IconChevronDown } from "@tabler/icons-react"
 import { Exercise } from "@/lib/types"
+import { EXERCISE_LEVELS, EXERCISE_TOPIC_GROUPS, EXERCISE_MAX_TOPICS } from "@/lib/const"
 
-const LEVELS = [
-  { value: "easy", label: "Easy" },
-  { value: "medium", label: "Medium" },
-  { value: "hard", label: "Hard" },
-  { value: "super_hard", label: "Super Hard" },
-]
-
-const MAX_TOPICS = 3
-
-const TOPIC_GROUPS: { label: string; topics: string[] }[] = [
-  {
-    label: "Basics",
-    topics: ["SELECT", "WHERE", "DISTINCT", "ORDER BY", "LIMIT", "LIKE", "IN", "BETWEEN", "IS NULL"],
-  },
-  {
-    label: "Joins",
-    topics: ["INNER JOIN", "LEFT JOIN", "RIGHT JOIN", "FULL JOIN", "CROSS JOIN", "SELF JOIN"],
-  },
-  {
-    label: "Aggregation",
-    topics: ["GROUP BY", "HAVING", "COUNT", "SUM", "AVG", "MIN", "MAX"],
-  },
-  {
-    label: "Subqueries",
-    topics: ["Subquery", "Correlated Subquery", "EXISTS", "ANY / ALL"],
-  },
-  {
-    label: "Set Operations",
-    topics: ["UNION", "UNION ALL", "INTERSECT", "EXCEPT"],
-  },
-  {
-    label: "Window Functions",
-    topics: ["ROW_NUMBER", "RANK", "DENSE_RANK", "LAG", "LEAD", "NTILE", "PARTITION BY", "Running Total", "Moving Average"],
-  },
-  {
-    label: "CTEs",
-    topics: ["CTE", "Recursive CTE"],
-  },
-  {
-    label: "Conditionals",
-    topics: ["CASE", "COALESCE", "NULLIF", "IFNULL"],
-  },
-  {
-    label: "Functions",
-    topics: ["String Functions", "Date Functions", "Numeric Functions", "Type Casting"],
-  },
-  {
-    label: "Shaping",
-    topics: ["Pivot", "Unpivot"],
-  },
-  {
-    label: "DML",
-    topics: ["INSERT", "UPDATE", "DELETE", "UPSERT"],
-  },
-]
-
-const ALL_SUGGESTED = TOPIC_GROUPS.flatMap(g => g.topics)
+const ALL_SUGGESTED = EXERCISE_TOPIC_GROUPS.flatMap(g => g.topics)
 
 
 const DatasetExercisesCreateButton = ({ datasetId, onCreated }: {
@@ -85,12 +30,12 @@ const DatasetExercisesCreateButton = ({ datasetId, onCreated }: {
   const [additionalInput, setAdditionalInput] = useState("")
   const [loading, setLoading] = useState(false)
 
-  const atLimit = topics.length >= MAX_TOPICS
+  const atLimit = topics.length >= EXERCISE_MAX_TOPICS
 
   const toggleTopic = (topic: string) => {
     setTopics(prev => {
       if (prev.includes(topic)) return prev.filter(t => t !== topic)
-      if (prev.length >= MAX_TOPICS) return prev
+      if (prev.length >= EXERCISE_MAX_TOPICS) return prev
       return [...prev, topic]
     })
   }
@@ -158,7 +103,7 @@ const DatasetExercisesCreateButton = ({ datasetId, onCreated }: {
               <Label>
                 Topics{" "}
                 <span className="text-muted-foreground">
-                  ({topics.length}/{MAX_TOPICS})
+                  ({topics.length}/{EXERCISE_MAX_TOPICS})
                 </span>
               </Label>
               <Popover open={topicsOpen} onOpenChange={setTopicsOpen}>
@@ -181,13 +126,13 @@ const DatasetExercisesCreateButton = ({ datasetId, onCreated }: {
                 <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
                   <Command>
                     <CommandInput
-                      placeholder={atLimit ? `Max ${MAX_TOPICS} topics` : "Search or add topic…"}
+                      placeholder={atLimit ? `Max ${EXERCISE_MAX_TOPICS} topics` : "Search or add topic…"}
                       value={search}
                       onValueChange={setSearch}
                     />
                     <CommandList>
                       <CommandEmpty>No topics found.</CommandEmpty>
-                      {TOPIC_GROUPS.map(group => (
+                      {EXERCISE_TOPIC_GROUPS.map(group => (
                         <CommandGroup key={group.label} heading={group.label}>
                           {group.topics.map(topic => {
                             const selected = topics.includes(topic)
@@ -258,7 +203,7 @@ const DatasetExercisesCreateButton = ({ datasetId, onCreated }: {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {LEVELS.map(l => (
+                    {EXERCISE_LEVELS.map(l => (
                       <SelectItem key={l.value} value={l.value}>{l.label}</SelectItem>
                     ))}
                   </SelectGroup>

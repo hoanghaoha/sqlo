@@ -1,3 +1,22 @@
+export interface SchemaColumn {
+  name: string
+  type: string
+  nullable: boolean
+  primary_key?: boolean
+  unique?: boolean
+  generator?: { method: string; references?: string }
+}
+
+export interface SchemaTable {
+  name: string
+  row_count: number
+  columns: SchemaColumn[]
+}
+
+export interface DatasetSchema {
+  tables: SchemaTable[]
+}
+
 export interface UserProfile {
   id: string
   plan: string
@@ -14,7 +33,7 @@ export interface Dataset {
   industry: string
   size: number
   row_count: number
-  schema: {}
+  schema: DatasetSchema
   db_path: string
   created_at: string
 }
@@ -29,3 +48,4 @@ export interface Exercise {
   level: string
   solution: string
 }
+

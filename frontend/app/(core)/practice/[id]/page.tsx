@@ -1,8 +1,8 @@
 "use client"
 
 import SchemaVisualizer from "@/components/dataset/schema-visualizer"
-import ExerciseSqlEditor from "@/components/exercise/exercise-sql-editor"
 import ExerciseTopic from "@/components/exercise/exercise-topic"
+import SqlEditor from "@/components/sql-editor"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useDataset } from "@/hooks/datasets"
 import { useExercise } from "@/hooks/exercises"
@@ -25,13 +25,13 @@ const Page = () => {
           <TabsTrigger value="assignment">Assignment</TabsTrigger>
         </TabsList>
         <TabsContent forceMount value="schema" className="flex-1 min-h-0 data-[state=inactive]:hidden">
-          <SchemaVisualizer schema={dataset?.schema as any} />
+          <SchemaVisualizer datasetId={dataset.id} />
         </TabsContent>
         <TabsContent forceMount value="topic" className="flex-1 min-h-0 data-[state=inactive]:hidden">
-          <ExerciseTopic {...exercise} />
+          <ExerciseTopic exerciseId={id} />
         </TabsContent>
         <TabsContent forceMount value="assignment" className="flex-1 min-h-0 overflow-hidden data-[state=inactive]:hidden">
-          <ExerciseSqlEditor exerciseId={id} />
+          <SqlEditor exerciseId={id} />
         </TabsContent>
       </Tabs>
     </div >

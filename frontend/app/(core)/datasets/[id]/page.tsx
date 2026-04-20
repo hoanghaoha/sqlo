@@ -2,9 +2,9 @@
 
 import DatasetExercise from "@/components/dataset/dataset-exercise"
 import DatasetSettings from "@/components/dataset/dataset-settings"
-import DatasetSqlEditor from "@/components/dataset/dataset-sql-editor"
 import DatasetTables from "@/components/dataset/dataset-tables"
 import SchemaVisualizer from "@/components/dataset/schema-visualizer"
+import SqlEditor from "@/components/sql-editor"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useDataset, useDatasets } from "@/hooks/datasets"
 import { useParams, useRouter } from "next/navigation"
@@ -29,19 +29,19 @@ const Page = () => {
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
         <TabsContent forceMount value="schema" className="flex-1 min-h-0 data-[state=inactive]:hidden">
-          <SchemaVisualizer schema={dataset.schema as any} />
+          <SchemaVisualizer datasetId={id} />
         </TabsContent>
         <TabsContent forceMount value="tables" className="flex gap-2 min-h-0 flex-1 overflow-hidden data-[state=inactive]:hidden">
-          <DatasetTables {...dataset} />
+          <DatasetTables datasetId={id} />
         </TabsContent>
         <TabsContent forceMount value="editor" className="flex-1 min-h-0 overflow-hidden data-[state=inactive]:hidden">
-          <DatasetSqlEditor datasetId={id} />
+          <SqlEditor datasetId={id} />
         </TabsContent>
         <TabsContent forceMount value="exercises" className="data-[state=inactive]:hidden">
           <DatasetExercise datasetId={id} />
         </TabsContent>
         <TabsContent forceMount value="settings" className="data-[state=inactive]:hidden p-4">
-          <DatasetSettings dataset={dataset} onUpdated={refresh} onDeleted={() => router.push("/datasets")} />
+          <DatasetSettings datasetId={id} onUpdated={refresh} onDeleted={() => router.push("/datasets")} />
         </TabsContent>
       </Tabs>
     </div>

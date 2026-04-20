@@ -8,21 +8,9 @@ class SizeEnum(str, Enum):
     large = "large"
 
 
-class IndustryEnum(str, Enum):
-    ecommerce = "e-commerce"
-    healthcare = "healthcare"
-    finance = "finance"
-    education = "education"
-    logistics = "logistics"
-    hr = "hr"
-    social = "social-media"
-    restaurant = "restaurant"
-    mr = "market-research"
-
-
 class CreateDatasetRequest(BaseModel):
     name: str
-    industry: IndustryEnum
+    industry: str
     description: str
     size: SizeEnum = SizeEnum.medium
 

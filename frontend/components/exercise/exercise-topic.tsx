@@ -1,8 +1,12 @@
-import { Exercise } from "@/lib/types"
 import ReactMarkdown from "react-markdown"
 import { Badge } from "../ui/badge"
+import { useExercise } from "@/hooks/exercises"
 
-const ExerciseTopic = (exercise: Exercise) => {
+const ExerciseTopic = ({ exerciseId }: { exerciseId: string }) => {
+  const exercise = useExercise(exerciseId)
+
+  if (!exercise) return <p>Loading...</p>
+
   return (
     <div className="flex flex-col gap-4 p-4">
       <p className="text-xl font-extrabold">{exercise.name}</p>

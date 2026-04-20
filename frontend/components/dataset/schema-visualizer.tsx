@@ -1,5 +1,6 @@
 "use client"
 
+import { useDataset } from "@/hooks/datasets"
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -13,23 +14,12 @@ import {
   type NodeProps,
 } from "@xyflow/react"
 import { useEffect, useMemo } from "react"
-
-type Column = {
-  name: string
-  type: string
-  nullable: boolean
-  primary_key?: boolean
-  unique?: boolean
-  generator?: { method: string; references?: string }
-}
-
-type Table = { name: string; row_count: number; columns: Column[] }
-type Schema = { tables: Table[] }
+import { DatasetSchema, SchemaColumn } from "@/lib/types"
 
 type TableNodeData = {
   name: string
   row_count: number
-  columns: Column[]
+  columns: SchemaColumn[]
   referencedCols: Set<string>
 }
 
@@ -81,7 +71,7 @@ function TableNode({ data }: NodeProps<Node<TableNodeData>>) {
 
 const nodeTypes = { table: TableNode }
 
-function buildGraph(schema: Schema): { nodes: Node<TableNodeData>[]; edges: Edge[] } {
+function buildGraph(schema: DatasetSchema): { nodes: Node<TableNodeData>[]; edges: Edge[] } {
   const cols = 3
   const colWidth = 320
   const rowHeight = 360
@@ -119,7 +109,7 @@ function buildGraph(schema: Schema): { nodes: Node<TableNodeData>[]; edges: Edge
   return { nodes, edges }
 }
 
-function Flow({ schema }: { schema: Schema }) {
+function Flow({ schema }: { schema: DatasetSchema }) {
   const { nodes: initNodes, edges: initEdges } = useMemo(() => buildGraph(schema), [schema])
   const [nodes, , onNodesChange] = useNodesState(initNodes)
   const [edges, , onEdgesChange] = useEdgesState(initEdges)
@@ -150,10 +140,15 @@ function Flow({ schema }: { schema: Schema }) {
   )
 }
 
-export default function SchemaVisualizer({ schema }: { schema: Schema }) {
+export default function SchemaVisualizer({ datasetId }: { datasetId: string }) {
+  const dataset = useDataset(datasetId)
+
+  if (!dataset) return <p>Loading...</p>
+
   return (
     <ReactFlowProvider>
-      <Flow schema={schema} />
+      <Flow schema={dataset.schema as DatasetSchema} />
     </ReactFlowProvider>
+
   )
 }

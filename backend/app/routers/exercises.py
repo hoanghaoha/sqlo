@@ -130,7 +130,11 @@ async def submit_exercise_endpoint(
 
 
 @router.post("/hint")
-async def create_hint(body: HintRequest, user_id: str = Depends(get_current_user)):  # type: ignore
+async def create_hint_endpoint(
+    body: HintRequest, user_id: str = Depends(get_current_user)
+):
+    if not user_id:
+        raise HTTPException(status_code=400, detail="User not found")
     hint = await generate_hint(
         sql=body.sql,
         dataset_schema=body.dataset_schema,
@@ -138,4 +142,16 @@ async def create_hint(body: HintRequest, user_id: str = Depends(get_current_user
         exercise_description=body.exercise_description,
         solution=body.solution,
     )
+
     return {"hint": hint}
+
+
+@router.delete("/exercise/{exercise_id}")
+async def delete_exercise_endpoint(
+    exercise_id: str, user_id: str = Depends(get_current_user)
+):
+    supabase.table("exercises").delete().eq("id", exercise_id).eq(
+        "user_id", user_id
+    ).execute()
+
+    return {"delete": True}

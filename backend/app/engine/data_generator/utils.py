@@ -45,6 +45,10 @@ Available faker_key values and when to use them:
       faker_args: { "start_date": "-2y", "end_date": "today" }
       faker_args: { "start_date": "-1y", "end_date": "today" }
       faker_args: { "start_date": "-6m", "end_date": "today" }
+      IMPORTANT: start_date and end_date MUST use Faker's relative format.
+        Allowed: "today", "-Nd" (days), "-Nw" (weeks), "-Nm" (months), "-Ny" (years)
+        Examples: "-30d", "-3m", "-2y", "-5y"
+        NEVER use bare values like "3y", "1y", "2020-01-01" — always prefix with "-"
 
   Text:
     "word"          → single word
@@ -254,7 +258,7 @@ client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
 
 async def generate_schema(industry: str, description: str, size: str) -> dict:
     message = await client.messages.create(
-        model="claude-haiku-4-5",
+        model="claude-sonnet-4-6",
         max_tokens=8192,
         system=SYSTEM_PROMPT,
         messages=[

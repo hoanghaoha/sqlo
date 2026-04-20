@@ -9,23 +9,25 @@ import { Textarea } from "../ui/textarea"
 import { apiFetch } from "@/lib/api"
 import { IconTrash, IconDeviceFloppy } from "@tabler/icons-react"
 import { Field, FieldGroup } from "../ui/field"
+import { useDataset } from "@/hooks/datasets"
 
-const DatasetSettings = ({ dataset, onUpdated, onDeleted }: {
-  dataset: Dataset
+const DatasetSettings = ({ datasetId, onUpdated, onDeleted }: {
+  datasetId: string
   onUpdated?: (updated: Dataset) => void
   onDeleted?: () => void
 }) => {
-  const [name, setName] = useState(dataset.name)
-  const [description, setDescription] = useState(dataset.description ?? "")
+  const dataset = useDataset(datasetId)
+  const [name, setName] = useState(dataset?.name)
+  const [description, setDescription] = useState(dataset?.description ?? "")
   const [saving, setSaving] = useState(false)
   const [deleting, setDeleting] = useState(false)
 
-  const isDirty = name !== dataset.name || description !== (dataset.description ?? "")
+  const isDirty = name !== dataset?.name || description !== (dataset?.description ?? "")
 
   const handleSave = async () => {
     setSaving(true)
     try {
-      const updated = await apiFetch<Dataset>(`/datasets/${dataset.id}`, {
+      const updated = await apiFetch<Dataset>(`/datasets/${dataset?.id}`, {
         method: "PATCH",
         body: JSON.stringify({ name, description }),
       })
@@ -38,12 +40,14 @@ const DatasetSettings = ({ dataset, onUpdated, onDeleted }: {
   const handleDelete = async () => {
     setDeleting(true)
     try {
-      await apiFetch(`/datasets/${dataset.id}`, { method: "DELETE" })
+      await apiFetch(`/datasets/${dataset?.id}`, { method: "DELETE" })
       onDeleted?.()
     } finally {
       setDeleting(false)
     }
   }
+
+  if (!dataset) return <p>Loading...</p>
 
   return (
     <div className="flex flex-col gap-6 max-w-lg">
@@ -67,15 +71,15 @@ const DatasetSettings = ({ dataset, onUpdated, onDeleted }: {
         </Field>
         <Field>
           <Label>Industry</Label>
-          <Input value={dataset.industry ?? "—"} disabled />
+          <Input value={dataset?.industry ?? "—"} disabled />
         </Field>
         <Field>
           <Label>Size</Label>
-          <Input value={dataset.size ?? "—"} disabled />
+          <Input value={dataset?.size ?? "—"} disabled />
         </Field>
         <Field>
           <Label>Row Count</Label>
-          <Input value={dataset.row_count.toLocaleString()} disabled />
+          <Input value={dataset?.row_count.toLocaleString()} disabled />
         </Field>
       </FieldGroup>
 

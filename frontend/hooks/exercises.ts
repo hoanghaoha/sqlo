@@ -19,7 +19,7 @@ export function useDatasetExercises(datasetId: string) {
   const load = useCallback(async () => {
     const data = await apiFetch<Exercise[]>(`/exercises/${datasetId}`)
     setExercises(data)
-  }, [])
+  }, [datasetId])
 
   useEffect(() => { load() }, [load])
 
