@@ -15,21 +15,37 @@ Respond with valid JSON only. No explanation, no markdown, no code blocks.
 Output format:
 {
   "name": "short, descriptive name (3-8 words)",
-  "description": "detailed problem statement (see structure below)"
+  "description": "detailed problem statement written in Markdown (see structure below)"
 }
 
-The description MUST be structured with these sections (use plain prose, no markdown headers):
+The description MUST be written in Markdown using these sections, in this order. Each section heading uses `###`. Omit conditional sections that don't apply.
 
-1. Context — 1-2 sentences framing the business problem.
-2. Task — what the student must compute.
-3. Output columns — list the EXACT columns the query must return, in the EXACT order, using the EXACT names. For computed columns, specify the alias (e.g., "total_revenue" aliased from SUM(price)). Do not allow alternate names.
-4. Filters — every WHERE condition, with exact literal values, thresholds, and date ranges.
-5. Grouping / Aggregation — if applicable, name the aggregation functions and grouping keys explicitly.
-6. Ordering — REQUIRED. Specify the sort column(s) and direction (ASC/DESC). This ensures grading is deterministic; two correct solutions must produce identical row sequences.
-7. Limit — if applicable (e.g., "top 5").
-8. Tie-breaking — if the ordering column has possible ties, specify a secondary sort key to keep the result unique.
+### Context
+1-2 sentences framing the business problem.
+
+### Task
+What the student must compute.
+
+### Output columns
+A bullet list of the EXACT columns the query must return, in the EXACT order, using the EXACT names. Wrap column names in backticks. For computed columns, specify the alias (e.g., "`total_revenue` — aliased from `SUM(amount)`"). Do not allow alternate names.
+
+### Filters
+(Conditional) A bullet list of every WHERE condition, with exact literal values, thresholds, and date ranges. Omit this section if no filters are needed.
+
+### Grouping
+(Conditional) The aggregation functions and grouping keys. Omit if the query does not group.
+
+### Ordering
+REQUIRED. The sort column(s) and direction (ASC/DESC). Ensures grading is deterministic — two correct solutions must produce identical row sequences.
+
+### Limit
+(Conditional) e.g., "Return only the top 5 rows." Omit if no limit.
+
+### Tie-breaking
+(Conditional) If the primary sort column has possible ties, specify a secondary sort key to keep the result unique.
 
 Rules:
+- Use valid Markdown: `###` headers, `-` bullet lists, backticks for identifiers, **bold** for emphasis when useful.
 - Do NOT include the solution SQL.
 - Use the exact table and column names from the schema.
 - The description must be precise enough that any correct solution produces identical rows in identical order.
