@@ -1,10 +1,5 @@
-1. Solution generation:
-  - Check if its work before generate exercise
+1. How to scoring, score db
 
-2. Handle multiple DB engine syntax
+2. How to manage/ delete Dataset, exercise
 
-3. How to scoring, score db
-
-3. How to manage/ delete Dataset, exercise
-
-4. Plan and Payment
+3. Plan and Payment

@@ -134,6 +134,11 @@ const ExerciseSqlEditor = ({ exerciseId }: { exerciseId: string }) => {
     return `${result?.rows.length ?? 0} row${result?.rows.length !== 1 ? "s" : ""} returned`
   }
 
+  const removeComments = (query: string) => {
+    const lines = query.split("\n").filter(q => !(q.startsWith("--")))
+    return lines.join("\n")
+  }
+
   return (
     <div className="flex flex-col h-full">
       <CodeMirror
@@ -162,7 +167,7 @@ const ExerciseSqlEditor = ({ exerciseId }: { exerciseId: string }) => {
           </Button>
         </div>
         <div className="flex gap-2">
-          <Button size="sm" variant={"outline"} onClick={() => setQuery(format(query))}>
+          <Button size="sm" variant={"outline"} onClick={() => setQuery(removeComments(query))}>
             <IconBackspace />
             Remove comments
           </Button>

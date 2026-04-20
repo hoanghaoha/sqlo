@@ -74,7 +74,7 @@ async def create_exercise_endpoint(
             user_id=user_id,
             dataset_id=body.dataset_id,
             industry=dataset.data["industry"],  # type: ignore
-            schema=dataset.data["schema"],  # type : ignore
+            schema=dataset.data["schema"],  # type: ignore
             topics=body.topics,
             level=body.level,
             additional_input=body.additional_input,
@@ -101,7 +101,7 @@ async def submit_exercise_endpoint(
     dataset = (
         supabase.table("datasets")
         .select("db_path")
-        .eq("id", exercise.data["dataset_id"])
+        .eq("id", exercise.data["dataset_id"])  # type: ignore
         .eq("user_id", user_id)
         .single()
         .execute()
@@ -109,25 +109,28 @@ async def submit_exercise_endpoint(
     if not dataset.data:
         raise HTTPException(status_code=404, detail="Dataset not found")
 
-    db_path = dataset.data["db_path"]
+    db_path: str = dataset.data["db_path"]  # type: ignore
 
     try:
         user_result = query_dataset(db_path, body.sql)
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    solution_result = query_dataset(db_path, exercise.data["solution"])
+    solution_result = query_dataset(db_path, exercise.data["solution"])  # type: ignore
 
-    solved = (
-        user_result["columns"] == solution_result["columns"]
-        and sorted(map(tuple, user_result["rows"])) == sorted(map(tuple, solution_result["rows"]))
-    )
+    solved = user_result["columns"] == solution_result["columns"] and sorted(
+        map(tuple, user_result["rows"])
+    ) == sorted(map(tuple, solution_result["rows"]))
 
-    return {"solved": solved, "user_result": user_result, "solution_result": solution_result}
+    return {
+        "solved": solved,
+        "user_result": user_result,
+        "solution_result": solution_result,
+    }
 
 
 @router.post("/hint")
-async def create_hint(body: HintRequest, user_id: str = Depends(get_current_user)):
+async def create_hint(body: HintRequest, user_id: str = Depends(get_current_user)):  # type: ignore
     hint = await generate_hint(
         sql=body.sql,
         dataset_schema=body.dataset_schema,
