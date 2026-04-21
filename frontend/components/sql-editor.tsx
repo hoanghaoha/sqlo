@@ -175,7 +175,7 @@ const SqlEditor = ({ datasetId, exerciseId }: SqlEditorProps) => {
             <div className="flex gap-2">
               <Button size="sm" variant="outline" onClick={() => setQuery(query.split("\n").filter(l => !l.startsWith("--")).join("\n"))}>
                 <IconBackspace />
-                Remove comments
+                Comments
               </Button>
               <Button size="sm" variant="outline" onClick={() => setQuery(format(query))}>
                 <IconClearFormatting />

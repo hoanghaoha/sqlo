@@ -16,7 +16,7 @@ export default function CoreLayout({ children }: { children: React.ReactNode }) 
     <div className="flex h-svh flex-col" style={sizing}>
       <SiteHeader />
       <TooltipProvider>
-        <SidebarProvider className="flex-1 min-h-0" style={sizing}>
+        <SidebarProvider className="flex-1 min-h-0" style={sizing} defaultOpen={false}>
           <AppSidebar
             variant="sidebar"
             className="top-(--header-height) h-[calc(100svh-var(--header-height))]"
