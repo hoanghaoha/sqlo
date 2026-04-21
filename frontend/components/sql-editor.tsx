@@ -11,6 +11,7 @@ import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "./ui/drawer"
 import { format } from "sql-formatter"
 import { useExercise } from "@/hooks/exercises"
 import { useDataset } from "@/hooks/datasets"
+import { Dataset, Exercise } from "@/lib/types"
 
 interface QueryResult {
   columns: string[]
@@ -47,16 +48,11 @@ const ResultTable = ({ result }: { result: QueryResult }) => (
 )
 
 interface SqlEditorProps {
-  datasetId?: string
-  exerciseId?: string
+  dataset: Dataset,
+  exercise?: Exercise,
 }
 
-const SqlEditor = ({ datasetId, exerciseId }: SqlEditorProps) => {
-  const exercise = useExercise(exerciseId ?? "")
-  const dataset = useDataset(exercise?.dataset_id ?? datasetId ?? "")
-  const isPractice = !!exerciseId
-  const resolvedDatasetId = exercise?.dataset_id ?? datasetId ?? ""
-
+const SqlEditor = ({ dataset, exercise }: SqlEditorProps) => {
   const [query, setQuery] = useState("SELECT *\nFROM ")
   const [result, setResult] = useState<QueryResult | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -73,7 +69,7 @@ const SqlEditor = ({ datasetId, exerciseId }: SqlEditorProps) => {
     setIsSubmit(false)
     setSolved(null)
     try {
-      const data = await apiFetch<QueryResult>(`/datasets/${resolvedDatasetId}`, {
+      const data = await apiFetch<QueryResult>(`/datasets/${dataset.id}`, {
         method: "POST",
         body: JSON.stringify({ query }),
       })
@@ -88,13 +84,13 @@ const SqlEditor = ({ datasetId, exerciseId }: SqlEditorProps) => {
   }
 
   const submitQuery = async () => {
-    if (!query.trim() || !exerciseId) return
+    if (!query.trim()) return
     setLoading(true)
     setError(null)
     setIsSubmit(true)
     setSolved(null)
     try {
-      const data = await apiFetch<{ solved: boolean; user_result: QueryResult }>(`/exercises/exercise/${exerciseId}/submit`, {
+      const data = await apiFetch<{ solved: boolean; user_result: QueryResult }>(`/exercises/exercise/${exercise?.id}/submit`, {
         method: "POST",
         body: JSON.stringify({ sql: query }),
       })
@@ -110,7 +106,7 @@ const SqlEditor = ({ datasetId, exerciseId }: SqlEditorProps) => {
   }
 
   const loadHint = async () => {
-    if (!exercise || !isPractice) return
+    if (!exercise) return
     setHintLoading(true)
     try {
       const data = await apiFetch<{ hint: string }>(`/exercises/hint`, {
@@ -160,7 +156,7 @@ const SqlEditor = ({ datasetId, exerciseId }: SqlEditorProps) => {
       />
 
       <div className="flex items-center justify-between px-3 py-2 border-t bg-muted/20">
-        {isPractice ? (
+        {exercise ? (
           <>
             <div className="flex gap-2">
               <Button size="sm" variant="outline" onClick={loadHint} disabled={hintLoading}>

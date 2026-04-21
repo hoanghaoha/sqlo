@@ -10,7 +10,7 @@ interface ScoreStats {
   total_score: number
   streak: number
   best_streak: number
-  solved: { easy: number; medium: number; hard: number }
+  solved: { beginner: number, easy: number; medium: number; hard: number, hell: number }
   solved_this_week: number
   solved_last_week: number
   score_this_month: number
@@ -59,7 +59,7 @@ const MOCK: ScoreStats = {
   total_score: 19000,
   streak: 4,
   best_streak: 9,
-  solved: { easy: 12, medium: 6, hard: 1 },
+  solved: { beginner: 20, easy: 12, medium: 6, hard: 1, hell: 3 },
   solved_this_week: 5,
   solved_last_week: 3,
   score_this_month: 210,
@@ -98,9 +98,11 @@ export function ScoreDashboard() {
   const weekDelta = stats.solved_this_week - stats.solved_last_week
 
   const difficultyData = [
+    { level: "Beginner", count: stats.solved.beginner, fill: "#" },
     { level: "Easy", count: stats.solved.easy, fill: "#22c55e" },
     { level: "Medium", count: stats.solved.medium, fill: "#eab308" },
     { level: "Hard", count: stats.solved.hard, fill: "#ef4444" },
+    { level: "Hell", count: stats.solved.hell, fill: "#" },
   ]
 
   const industryData = Object.entries(stats.by_industry)

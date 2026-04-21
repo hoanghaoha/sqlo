@@ -10,17 +10,7 @@ import { Label } from "../ui/label"
 import { IconPlus } from "@tabler/icons-react"
 import { Textarea } from "../ui/textarea"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
-const INDUSTRIES = [
-  { value: "e-commerce", label: "E-Commerce" },
-  { value: "healthcare", label: "Healthcare" },
-  { value: "finance", label: "Finance" },
-  { value: "retail", label: "Retail" },
-  { value: "technology", label: "Technology" },
-  { value: "education", label: "Education" },
-  { value: "logistics", label: "Logistics" },
-  { value: "market-research", label: "Market Research" },
-  { value: "other", label: "Other" },
-]
+import { DATASET_INDUSTRIES, DATASET_SIZES } from "@/lib/const"
 
 const DatasetCreateButton = ({ onCreated }: { onCreated?: () => void }) => {
   const [open, setOpen] = useState(false)
@@ -57,15 +47,15 @@ const DatasetCreateButton = ({ onCreated }: { onCreated?: () => void }) => {
           Create Dataset
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-sm max-h-[90vh] flex flex-col">
-        <form onSubmit={handleCreateDataset} className="flex flex-col min-h-0 overflow-y-auto">
+      <DialogContent className="flex flex-col">
+        <form onSubmit={handleCreateDataset} className="flex flex-col gap-4">
           <DialogHeader>
             <DialogTitle>New Dataset</DialogTitle>
             <DialogDescription>
-              Input fields for SQLO AI to know what dataset you want to generate.
+              Please describe your dataset.
             </DialogDescription>
           </DialogHeader>
-          <FieldGroup className="overflow-y-auto flex-1 px-1 py-4">
+          <FieldGroup className="overflow-y-auto max-h-[60vh]">
             <Field>
               <Label htmlFor="name">Name</Label>
               <Input id="name" name="name" value={name} onChange={e => setName(e.target.value)} required />
@@ -78,8 +68,13 @@ const DatasetCreateButton = ({ onCreated }: { onCreated?: () => void }) => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {INDUSTRIES.map(i => (
-                      <SelectItem key={i.value} value={i.value}>{i.label}</SelectItem>
+                    {DATASET_INDUSTRIES.map(i => (
+                      <SelectItem key={i.value} value={i.value}>
+                        <span className="flex items-center gap-2">
+                          <i.icon className="h-4 w-4" />
+                          {i.label}
+                        </span>
+                      </SelectItem>
                     ))}
                   </SelectGroup>
                 </SelectContent>
@@ -96,9 +91,14 @@ const DatasetCreateButton = ({ onCreated }: { onCreated?: () => void }) => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectItem value="small">Small</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="large">Large</SelectItem>
+                    {DATASET_SIZES.map(s => (
+                      <SelectItem key={s.value} value={s.value}>
+                        <span className="flex items-center gap-2">
+                          <s.icon className="h-4 w-4" />
+                          {s.label}
+                        </span>
+                      </SelectItem>
+                    ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
@@ -114,7 +114,7 @@ const DatasetCreateButton = ({ onCreated }: { onCreated?: () => void }) => {
               />
             </Field>
           </FieldGroup>
-          <DialogFooter className="pt-4 shrink-0">
+          <DialogFooter>
             <DialogClose asChild>
               <Button type="button" variant="outline">Cancel</Button>
             </DialogClose>

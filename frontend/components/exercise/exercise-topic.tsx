@@ -1,19 +1,36 @@
 import ReactMarkdown from "react-markdown"
 import { Badge } from "../ui/badge"
 import { useExercise } from "@/hooks/exercises"
+import { useDataset } from "@/hooks/datasets"
+import { EXERCISE_LEVEL_MAP, DATASET_INDUSTRIES } from "@/lib/const"
 
 const ExerciseTopic = ({ exerciseId }: { exerciseId: string }) => {
   const exercise = useExercise(exerciseId)
+  const dataset = useDataset(exercise?.dataset_id ?? "")
 
   if (!exercise) return <p>Loading...</p>
+
+  const level = EXERCISE_LEVEL_MAP[exercise.level]
+  const LevelIcon = level?.icon
+  const industry = DATASET_INDUSTRIES.find(i => i.value === dataset?.industry)
+  const IndustryIcon = industry?.icon
 
   return (
     <div className="flex flex-col gap-4 p-4">
       <p className="text-xl font-extrabold">{exercise.name}</p>
       <div className="flex flex-wrap gap-2">
-        <Badge>{exercise.level}</Badge>
+        <Badge variant="outline" className={`gap-1 ${level?.color ?? ""}`}>
+          {LevelIcon && <LevelIcon className="size-3.5" />}
+          {exercise.level.toUpperCase()}
+        </Badge>
+        {industry && IndustryIcon && (
+          <Badge variant="outline" className="gap-1">
+            <IndustryIcon className="size-3.5" />
+            {industry.label}
+          </Badge>
+        )}
         {exercise.topics.map((topic) => (
-          <Badge key={topic}>{topic}</Badge>
+          <Badge key={topic} variant="secondary">{topic}</Badge>
         ))}
       </div>
       <div className="text-sm leading-relaxed">

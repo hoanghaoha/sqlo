@@ -29,19 +29,19 @@ const Page = () => {
           <TabsTrigger value="settings">Settings</TabsTrigger>
         </TabsList>
         <TabsContent forceMount value="schema" className="flex-1 min-h-0 data-[state=inactive]:hidden">
-          <SchemaVisualizer datasetId={id} />
+          <SchemaVisualizer {...dataset} />
         </TabsContent>
         <TabsContent forceMount value="tables" className="flex gap-2 min-h-0 flex-1 overflow-hidden data-[state=inactive]:hidden">
-          <DatasetTables datasetId={id} />
+          <DatasetTables {...dataset} />
         </TabsContent>
         <TabsContent forceMount value="editor" className="flex-1 min-h-0 overflow-hidden data-[state=inactive]:hidden">
-          <SqlEditor datasetId={id} />
+          <SqlEditor dataset={dataset} />
         </TabsContent>
         <TabsContent forceMount value="exercises" className="data-[state=inactive]:hidden">
-          <DatasetExercise datasetId={id} />
+          <DatasetExercise {...dataset} />
         </TabsContent>
         <TabsContent forceMount value="settings" className="data-[state=inactive]:hidden p-4">
-          <DatasetSettings datasetId={id} onUpdated={refresh} onDeleted={() => router.push("/datasets")} />
+          <DatasetSettings dataset={dataset} onUpdated={refresh} onDeleted={() => router.push("/datasets")} />
         </TabsContent>
       </Tabs>
     </div>

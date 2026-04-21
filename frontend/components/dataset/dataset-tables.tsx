@@ -5,21 +5,20 @@ import { Skeleton } from "../ui/skeleton";
 import { Badge } from "../ui/badge";
 import { IconTable } from "@tabler/icons-react";
 import { cn } from "@/lib/utils";
-import { useDataset } from "@/hooks/datasets";
+import { Dataset } from "@/lib/types";
 
-const DatasetTables = ({ datasetId }: { datasetId: string }) => {
-  const dataset = useDataset(datasetId)
+const DatasetTables = (dataset: Dataset) => {
   const [selectedTable, setSelectedTable] = useState<string | null>(null)
   const [tableData, setTableData] = useState<{ columns: string[]; rows: unknown[][] } | null>(null)
   const [loading, setLoading] = useState(false)
-  const schemaTable = dataset?.schema.tables.find(t => t.name === selectedTable)
+  const schemaTable = dataset.schema.tables.find(t => t.name === selectedTable)
   const colTypeMap = Object.fromEntries(schemaTable?.columns.map(c => [c.name, c.type]) ?? [])
 
   useEffect(() => {
     if (!selectedTable) return
     setTableData(null)
     setLoading(true)
-    apiFetch(`/datasets/${dataset?.id}/${selectedTable}`)
+    apiFetch(`/datasets/${dataset.id}/${selectedTable}`)
       .then((data) => setTableData(data as { columns: string[]; rows: unknown[][] }))
       .finally(() => setLoading(false))
   }, [selectedTable])

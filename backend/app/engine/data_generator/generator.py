@@ -58,13 +58,44 @@ class DataGenerator:
         finally:
             self.conn.close()
 
+    def _sorted_tables(self) -> list[dict]:
+        """
+        Return tables sorted so referenced tables come before tables that reference them.
+        """
+        tables_by_name = {t["name"]: t for t in self.schema["tables"]}
+        deps: dict[str, set[str]] = {name: set() for name in tables_by_name}
+
+        for table in self.schema["tables"]:
+            for col in table["columns"]:
+                ref = col.get("generator", {}).get("references")
+                if ref:
+                    ref_table = ref.split(".")[0]
+                    if ref_table in tables_by_name:
+                        deps[table["name"]].add(ref_table)
+
+        sorted_tables: list[dict] = []
+        visited: set[str] = set()
+
+        def visit(name: str) -> None:
+            if name in visited:
+                return
+            visited.add(name)
+            for dep in deps[name]:
+                visit(dep)
+            sorted_tables.append(tables_by_name[name])
+
+        for name in tables_by_name:
+            visit(name)
+
+        return sorted_tables
+
     def _create_tables(self) -> None:
         """
         Create database tables based on the schema definition.
         """
         cur = self.conn.cursor()
 
-        for table in self.schema["tables"]:
+        for table in self._sorted_tables():
             col_defs = []
 
             for col in table["columns"]:
@@ -91,7 +122,7 @@ class DataGenerator:
         """
         total = 0
 
-        for table in self.schema["tables"]:
+        for table in self._sorted_tables():
             rows = self._generate_rows(table)
             inserted = self._insert_rows(table, rows)
             total += inserted
@@ -286,9 +317,10 @@ class DataGenerator:
 
         cached = self.pk_cache.get(ref_key)
         if not cached:
+            ref_table = ref_key.split(".")[0]
             raise ValueError(
                 f"Foreign key reference '{ref_key}' not found in cache. "
-                f"Make sure '{ref_key.split('.')[0]}' table appears before "
+                f"Make sure '{ref_table}' table appears before "
                 f"this table in the schema."
             )
 
@@ -312,4 +344,3 @@ class DataGenerator:
             if col.get("primary_key"):
                 return col
         return None
-

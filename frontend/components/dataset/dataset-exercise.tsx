@@ -1,15 +1,16 @@
-import DatasetExercisesCreateButton from "./dataset-exercises-create-button"
 import { useDatasetExercises } from "@/hooks/exercises"
 import ExerciseCard from "../exercise/exercise-card"
+import { Dataset } from "@/lib/types"
+import ExerciseCreateButton from "../exercise/exercise-create-button"
 
-const DatasetExercise = ({ datasetId }: { datasetId: string }) => {
-  const { exercises, refresh } = useDatasetExercises(datasetId)
+const DatasetExercise = (dataset: Dataset) => {
+  const { exercises, refresh } = useDatasetExercises(dataset.id)
   return (
     <div className="flex flex-col gap-2 p-4">
-      <DatasetExercisesCreateButton datasetId={datasetId} onCreated={refresh} />
+      <ExerciseCreateButton dataset={dataset} onCreated={refresh} />
       <div className="flex flex-col gap-4">
         {exercises?.map((exercise) => (
-          <ExerciseCard {...exercise} key={exercise.id} onDeleted={refresh} />
+          <ExerciseCard key={exercise.id} exercise={exercise} includeIndustry={false} onDeleted={refresh} />
         ))}
       </div>
     </div>

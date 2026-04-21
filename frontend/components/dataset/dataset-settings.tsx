@@ -9,14 +9,12 @@ import { Textarea } from "../ui/textarea"
 import { apiFetch } from "@/lib/api"
 import { IconTrash, IconDeviceFloppy } from "@tabler/icons-react"
 import { Field, FieldGroup } from "../ui/field"
-import { useDataset } from "@/hooks/datasets"
 
-const DatasetSettings = ({ datasetId, onUpdated, onDeleted }: {
-  datasetId: string
+const DatasetSettings = ({ dataset, onUpdated, onDeleted }: {
+  dataset: Dataset
   onUpdated?: (updated: Dataset) => void
   onDeleted?: () => void
 }) => {
-  const dataset = useDataset(datasetId)
   const [name, setName] = useState(dataset?.name)
   const [description, setDescription] = useState(dataset?.description ?? "")
   const [saving, setSaving] = useState(false)

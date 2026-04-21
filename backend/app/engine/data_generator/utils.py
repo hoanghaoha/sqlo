@@ -181,21 +181,28 @@ SCHEMA DESIGN RULES
    CORRECT:  categories → products → orders → order_items
    WRONG:    orders → customers (customers not defined yet)
 
-2. Always include these for interesting SQL practice:
+2. NEVER use self-referential foreign keys (a table referencing its own primary key).
+   Use a separate junction table instead.
+   WRONG:  employees.manager_id → employees.id
+   CORRECT: employees + management (manager_id → employees.id, subordinate_id → employees.id)
+   WRONG:  categories.parent_id → categories.id
+   CORRECT: categories + category_hierarchy (parent_id → categories.id, child_id → categories.id)
+
+3. Always include these for interesting SQL practice:
    - At least one nullable column with null_rate: 0.05
    - At least one enum column with realistic weights
    - At least one lognormal numeric column (revenue, salary, price)
    - Foreign keys with power_law distribution
    - A date column in the main transaction table
 
-3. Row counts should be realistic ratios:
+4. Row counts should be realistic ratios:
    categories: 5–10 rows
    products:   50–100 rows
    customers:  200–500 rows
    orders:     1000–5000 rows (main table)
    order_items: 2000–15000 rows
 
-4. Name columns clearly — they appear in SQL problems:
+5. Name columns clearly — they appear in SQL problems:
    Use order_date not date, total_amount not amount, customer_id not cust_id
 
 ═══════════════════════════════════════════

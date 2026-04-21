@@ -14,7 +14,7 @@ import {
   type NodeProps,
 } from "@xyflow/react"
 import { useEffect, useMemo } from "react"
-import { DatasetSchema, SchemaColumn } from "@/lib/types"
+import { Dataset, DatasetSchema, SchemaColumn } from "@/lib/types"
 
 type TableNodeData = {
   name: string
@@ -140,11 +140,7 @@ function Flow({ schema }: { schema: DatasetSchema }) {
   )
 }
 
-export default function SchemaVisualizer({ datasetId }: { datasetId: string }) {
-  const dataset = useDataset(datasetId)
-
-  if (!dataset) return <p>Loading...</p>
-
+export default function SchemaVisualizer(dataset: Dataset) {
   return (
     <ReactFlowProvider>
       <Flow schema={dataset.schema as DatasetSchema} />

@@ -25,13 +25,13 @@ const Page = () => {
           <TabsTrigger value="assignment">Assignment</TabsTrigger>
         </TabsList>
         <TabsContent forceMount value="schema" className="flex-1 min-h-0 data-[state=inactive]:hidden">
-          <SchemaVisualizer datasetId={dataset.id} />
+          <SchemaVisualizer {...dataset} />
         </TabsContent>
         <TabsContent forceMount value="topic" className="flex-1 min-h-0 data-[state=inactive]:hidden">
           <ExerciseTopic exerciseId={id} />
         </TabsContent>
         <TabsContent forceMount value="assignment" className="flex-1 min-h-0 overflow-hidden data-[state=inactive]:hidden">
-          <SqlEditor exerciseId={id} />
+          <SqlEditor dataset={dataset} exercise={exercise} />
         </TabsContent>
       </Tabs>
     </div >

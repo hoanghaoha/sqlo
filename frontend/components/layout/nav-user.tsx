@@ -1,16 +1,15 @@
-import { IconDotsVertical, IconLogout, IconUserCircle } from "@tabler/icons-react"
+import { IconDotsVertical, IconLogout } from "@tabler/icons-react"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu"
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from "../ui/sidebar"
 import { useAuth } from "@/context/AuthContext"
 import { signOut } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
-import { Button } from "../ui/button"
 import { data } from "@/lib/const"
 
 const NavUser = () => {
   const { isMobile } = useSidebar()
-  const user = useAuth()
+  const { user } = useAuth()
   const router = useRouter()
 
   return (
@@ -23,13 +22,13 @@ const NavUser = () => {
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.user?.user_metadata.avatar_url} alt={user.user?.email} />
+                <AvatarImage src={user?.user_metadata.avatar_url} alt={user?.email} />
                 <AvatarFallback className="rounded-lg">CN</AvatarFallback>
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">{user.user?.user_metadata.full_name}</span>
+                <span className="truncate font-medium">{user?.user_metadata.full_name}</span>
                 <span className="truncate text-xs text-muted-foreground">
-                  {user.user?.email}
+                  {user?.email}
                 </span>
               </div>
               <IconDotsVertical className="ml-auto size-4" />
@@ -45,7 +44,7 @@ const NavUser = () => {
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate text-xs text-muted-foreground">
-                    {user.user?.email}
+                    {user?.email}
                   </span>
                 </div>
               </div>

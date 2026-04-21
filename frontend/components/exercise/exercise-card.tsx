@@ -7,19 +7,33 @@ import { IconArrowRight, IconTrash } from "@tabler/icons-react"
 import { Badge } from "../ui/badge"
 import { useRouter } from "next/navigation"
 import { apiFetch } from "@/lib/api"
-import { EXERCISE_LEVEL_MAP } from "@/lib/const"
+import { EXERCISE_LEVEL_MAP, DATASET_INDUSTRIES } from "@/lib/const"
+import { useDataset } from "@/hooks/datasets"
 
-const ExerciseCard = (exercise: Exercise & { onDeleted?: () => void }) => {
+const ExerciseCard = ({ exercise, onDeleted, includeIndustry }: { exercise: Exercise, includeIndustry: boolean, onDeleted?: () => void }) => {
+  const dataset = useDataset(exercise.dataset_id)
   const router = useRouter()
   const level = EXERCISE_LEVEL_MAP[exercise.level]
   const LevelIcon = level?.icon
+  const industry = DATASET_INDUSTRIES.find(i => i.value === dataset?.industry)
+  const IndustryIcon = industry?.icon
 
   return (
     <Item variant={"outline"}>
       <ItemContent>
         <ItemTitle>
           <HoverCard>
-            <HoverCardTrigger className="hover:underline">{exercise.name}</HoverCardTrigger>
+            <HoverCardTrigger className="hover:underline flex items-center justify-start gap-2">
+              <p>
+                {exercise.name.length > 50 ? exercise.name.slice(0, 40) + "..." : exercise.name}
+              </p>
+              {includeIndustry && industry && IndustryIcon &&
+                <Badge variant={"outline"} className="gap-1">
+                  <IndustryIcon className="size-3.5" />
+                  {industry.label}
+                </Badge>
+              }
+            </HoverCardTrigger>
             <HoverCardContent className="max-h-[50vh] overflow-y-auto border-primary border-2" align="start">
               <ReactMarkdown
                 components={{
@@ -59,7 +73,7 @@ const ExerciseCard = (exercise: Exercise & { onDeleted?: () => void }) => {
         </Button>
         <Button size={"icon"} variant={"destructive"} onClick={async () => {
           await apiFetch(`/exercises/exercise/${exercise.id}`, { method: "DELETE" })
-          exercise.onDeleted?.()
+          onDeleted?.()
         }}>
           <IconTrash />
         </Button>
