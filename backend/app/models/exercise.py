@@ -3,10 +3,11 @@ from pydantic import BaseModel
 
 
 class LevelEnum(str, Enum):
+    BEGINNER = "beginner"
     EASY = "easy"
     MEDIUM = "medium"
     HARD = "hard"
-    SUPER_HARD = "super_hard"
+    HELL = "hell"
 
 
 class CreateExerciseRequest(BaseModel):

@@ -7,10 +7,12 @@ import { IconArrowRight, IconTrash } from "@tabler/icons-react"
 import { Badge } from "../ui/badge"
 import { useRouter } from "next/navigation"
 import { apiFetch } from "@/lib/api"
-import { EXERCISE_LEVEL_COLOR } from "@/lib/const"
+import { EXERCISE_LEVEL_MAP } from "@/lib/const"
 
 const ExerciseCard = (exercise: Exercise & { onDeleted?: () => void }) => {
   const router = useRouter()
+  const level = EXERCISE_LEVEL_MAP[exercise.level]
+  const LevelIcon = level?.icon
 
   return (
     <Item variant={"outline"}>
@@ -46,7 +48,8 @@ const ExerciseCard = (exercise: Exercise & { onDeleted?: () => void }) => {
             </HoverCardContent>
           </HoverCard>
         </ItemTitle>
-        <ItemDescription className={EXERCISE_LEVEL_COLOR[exercise.level.toLowerCase()]}>
+        <ItemDescription className={`font-bold flex items-center gap-1 ${level?.color ?? ""}`}>
+          {LevelIcon && <LevelIcon className="h-5 w-5" />}
           {exercise.level.toUpperCase()}
         </ItemDescription>
       </ItemContent>
@@ -64,7 +67,7 @@ const ExerciseCard = (exercise: Exercise & { onDeleted?: () => void }) => {
       <ItemFooter className="flex flex-row gap-2 justify-start">
         {exercise.topics.map((topic, index) => <Badge key={index} variant={"secondary"}>{topic}</Badge>)}
       </ItemFooter>
-    </Item>
+    </Item >
   )
 }
 

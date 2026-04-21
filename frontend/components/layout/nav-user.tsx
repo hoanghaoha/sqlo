@@ -54,7 +54,7 @@ const NavUser = () => {
             <DropdownMenuGroup>
               {data.navUser.map(item => (
                 <DropdownMenuItem key={item.title} onClick={() => router.push(item.url)}>
-                  {item.icon}
+                  <item.icon />
                   {item.title}
                 </DropdownMenuItem>
               ))}
