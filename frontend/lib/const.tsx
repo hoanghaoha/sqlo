@@ -1,4 +1,4 @@
-import { IconBrain, IconChessKing, IconChevronsUp, IconDashboard, IconDatabase, IconHeartShare, IconTreadmill, IconTriangleSquareCircle } from "@tabler/icons-react"
+import { IconBrain, IconChessKing, IconChevronsUp, IconDashboard, IconDatabase, IconHeartShare, IconTreadmill, IconTriangleSquareCircle, IconUserCircle } from "@tabler/icons-react"
 
 export const data = {
   navWorkpsace: [
@@ -25,14 +25,6 @@ export const data = {
         />
       ),
     },
-    {
-      title: "AI Teacher",
-      url: "/ai",
-      icon: (
-        <IconBrain
-        />
-      ),
-    },
   ],
   navCommnity: [
     {
@@ -50,7 +42,12 @@ export const data = {
       ),
     },
   ],
-  navMore: [
+  navUser: [
+    {
+      title: "Account",
+      url: "/account",
+      icon: <IconUserCircle />
+    },
     {
       title: "Feedback",
       url: "/feedback",
@@ -65,7 +62,7 @@ export const data = {
         <IconChevronsUp />
       ),
     },
-  ],
+  ]
 }
 
 export const EXERCISE_LEVELS = [

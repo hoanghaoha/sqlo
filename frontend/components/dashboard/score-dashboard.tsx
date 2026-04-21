@@ -56,7 +56,7 @@ function getRankProgress(score: number) {
 
 // mock — replace with real API call
 const MOCK: ScoreStats = {
-  total_score: 25000,
+  total_score: 19000,
   streak: 4,
   best_streak: 9,
   solved: { easy: 12, medium: 6, hard: 1 },
