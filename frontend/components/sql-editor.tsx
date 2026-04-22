@@ -112,6 +112,7 @@ const SqlEditor = ({ dataset, exercise }: SqlEditorProps) => {
       const data = await apiFetch<{ hint: string }>(`/exercises/hint`, {
         method: "POST",
         body: JSON.stringify({
+          exercise_id: exercise.id,
           sql: query,
           dataset_schema: JSON.stringify(dataset?.schema ?? {}),
           exercise_name: exercise.name,
@@ -123,6 +124,20 @@ const SqlEditor = ({ dataset, exercise }: SqlEditorProps) => {
       setQuery(prev => `${commentLines}\n${prev}`)
     } finally {
       setHintLoading(false)
+    }
+  }
+
+  const loadSolution = async () => {
+    if (!exercise) return
+    try {
+      const data = await apiFetch<{ solution: string }>(
+        `/exercises/exercise/${exercise.id}/solution`,
+        { method: "POST" }
+      )
+      setQuery(format(data.solution, { language: "sqlite" }))
+    } catch (e: any) {
+      setError(e?.message ?? "Failed to load solution")
+      setOpen(true)
     }
   }
 
@@ -163,7 +178,7 @@ const SqlEditor = ({ dataset, exercise }: SqlEditorProps) => {
                 <IconBulb className="text-yellow-300" />
                 {hintLoading ? "Loading..." : "Hint"}
               </Button>
-              <Button size="sm" variant="outline" onClick={() => setQuery(format(exercise?.solution ?? "", { language: "sqlite" }))}>
+              <Button size="sm" variant="outline" onClick={loadSolution}>
                 <IconPuzzle className="text-purple-300" />
                 Solution
               </Button>

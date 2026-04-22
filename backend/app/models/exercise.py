@@ -22,6 +22,7 @@ class SubmitRequest(BaseModel):
 
 
 class HintRequest(BaseModel):
+    exercise_id: str
     sql: str
     dataset_schema: str
     exercise_name: str

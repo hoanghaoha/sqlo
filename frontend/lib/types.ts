@@ -49,3 +49,15 @@ export interface Exercise {
   solution: string
 }
 
+export interface ScoreSummary {
+  total_score: number
+  streak: number
+  best_streak: number
+  solved: { beginner: number; easy: number; medium: number; hard: number; hell: number }
+  solved_this_week: number
+  solved_last_week: number
+  score_this_month: number
+  by_industry: Record<string, number>
+  activity: { date: string; count: number }[]
+}
+

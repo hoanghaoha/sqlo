@@ -3,20 +3,9 @@
 import { Bar, BarChart, CartesianGrid, RadialBar, RadialBarChart, XAxis, YAxis, Cell } from "recharts"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart"
-import { IconFlame, IconTrophy, IconTarget, IconCrown, IconSwords, IconDiamond, IconHexagonFilled, IconMedal, IconShieldFilled, IconAward } from "@tabler/icons-react"
+import { IconFlame, IconTrophy, IconTarget, IconCrown, IconSwords, IconDiamond, IconHexagonFilled, IconMedal, IconAward } from "@tabler/icons-react"
 import type { ComponentType } from "react"
-
-interface ScoreStats {
-  total_score: number
-  streak: number
-  best_streak: number
-  solved: { beginner: number, easy: number; medium: number; hard: number, hell: number }
-  solved_this_week: number
-  solved_last_week: number
-  score_this_month: number
-  by_industry: Record<string, number>
-  activity: { date: string; count: number }[]
-}
+import { useScoreSummary } from "@/hooks/scores"
 
 interface Rank {
   name: string
@@ -54,26 +43,7 @@ function getRankProgress(score: number) {
   return Math.min(100, ((score - prevMin) / (next.min - prevMin)) * 100)
 }
 
-// mock — replace with real API call
-const MOCK: ScoreStats = {
-  total_score: 19000,
-  streak: 4,
-  best_streak: 9,
-  solved: { beginner: 20, easy: 12, medium: 6, hard: 1, hell: 3 },
-  solved_this_week: 5,
-  solved_last_week: 3,
-  score_this_month: 210,
-  by_industry: { Finance: 7, "E-Commerce": 6, Healthcare: 4, Logistics: 2 },
-  activity: [
-    { date: "Mon", count: 0 },
-    { date: "Tue", count: 2 },
-    { date: "Wed", count: 1 },
-    { date: "Thu", count: 3 },
-    { date: "Fri", count: 0 },
-    { date: "Sat", count: 2 },
-    { date: "Sun", count: 1 },
-  ],
-}
+const WEEKDAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
 
 const activityConfig = {
   count: { label: "Solved", color: "var(--primary)" },
@@ -90,24 +60,39 @@ const industryConfig = {
 } satisfies ChartConfig
 
 export function ScoreDashboard() {
-  const stats = MOCK
+  const { summary, loading } = useScoreSummary()
+
+  if (loading || !summary) {
+    return <div className="p-6 text-sm text-muted-foreground">Loading...</div>
+  }
+
+  const stats = summary
   const rank = getRank(stats.total_score)
   const next = getNextRank(stats.total_score)
   const progress = getRankProgress(stats.total_score)
-  const totalSolved = stats.solved.easy + stats.solved.medium + stats.solved.hard
-  const weekDelta = stats.solved_this_week - stats.solved_last_week
+  const totalSolved =
+    stats.solved.beginner +
+    stats.solved.easy +
+    stats.solved.medium +
+    stats.solved.hard +
+    stats.solved.hell
 
   const difficultyData = [
-    { level: "Beginner", count: stats.solved.beginner, fill: "#" },
+    { level: "Beginner", count: stats.solved.beginner, fill: "#94a3b8" },
     { level: "Easy", count: stats.solved.easy, fill: "#22c55e" },
     { level: "Medium", count: stats.solved.medium, fill: "#eab308" },
     { level: "Hard", count: stats.solved.hard, fill: "#ef4444" },
-    { level: "Hell", count: stats.solved.hell, fill: "#" },
+    { level: "Hell", count: stats.solved.hell, fill: "#7c3aed" },
   ]
 
   const industryData = Object.entries(stats.by_industry)
     .sort(([, a], [, b]) => b - a)
     .map(([name, count]) => ({ name, count }))
+
+  const activityData = stats.activity.map(a => ({
+    date: WEEKDAY[new Date(a.date).getUTCDay()],
+    count: a.count,
+  }))
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -147,46 +132,30 @@ export function ScoreDashboard() {
 
         {/* Sub-stats */}
         <div className="lg:col-span-2 grid grid-cols-2 gap-4">
-          <Card>
-            <CardHeader>
-              <CardDescription>This Week</CardDescription>
-              <CardTitle className="text-3xl font-bold tabular-nums">{stats.solved_this_week}</CardTitle>
-              <p className={`text-xs font-medium ${weekDelta >= 0 ? "text-green-500" : "text-red-500"}`}>
-                {weekDelta >= 0 ? "+" : ""}{weekDelta} vs last week
-              </p>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardDescription>Streak</CardDescription>
-              <CardTitle className="text-3xl font-bold tabular-nums">
-                {stats.streak}
-                <span className="text-base font-normal text-muted-foreground ml-1">days</span>
-              </CardTitle>
-              <div className="flex items-center gap-1 text-xs text-orange-500 font-medium">
-                <IconFlame className="size-3.5" />
-                Best: {stats.best_streak} days
+          <Card className="flex flex-col justify-center items-center text-center">
+            <CardContent className="flex items-center gap-3 py-6">
+              <IconFlame className="size-12 text-orange-500" />
+              <div>
+                <p className="text-5xl font-black tabular-nums">{stats.streak}</p>
+                <p className="text-xs text-muted-foreground mt-1">day streak</p>
               </div>
-            </CardHeader>
+            </CardContent>
+            <CardFooter className="text-xs text-muted-foreground">
+              Best: <span className="font-semibold text-foreground ml-1">{stats.best_streak}</span>
+              <span className="ml-1">days</span>
+            </CardFooter>
           </Card>
-          <Card>
-            <CardHeader>
-              <CardDescription>Score This Month</CardDescription>
-              <CardTitle className="text-3xl font-bold tabular-nums">+{stats.score_this_month.toLocaleString()}</CardTitle>
-              <p className="text-xs text-muted-foreground">
-                {new Date().toLocaleString("default", { month: "long" })}
-              </p>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardDescription>Total Solved</CardDescription>
-              <CardTitle className="text-3xl font-bold tabular-nums">{totalSolved}</CardTitle>
-              <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                <IconTarget className="size-3.5" />
-                exercises completed
+          <Card className="flex flex-col justify-center items-center text-center">
+            <CardContent className="flex items-center gap-3 py-6">
+              <IconTarget className="size-12 text-primary" />
+              <div>
+                <p className="text-5xl font-black tabular-nums">{totalSolved}</p>
+                <p className="text-xs text-muted-foreground mt-1">solved</p>
               </div>
-            </CardHeader>
+            </CardContent>
+            <CardFooter className="text-xs text-muted-foreground">
+              across all difficulties
+            </CardFooter>
           </Card>
         </div>
       </div>
@@ -202,7 +171,7 @@ export function ScoreDashboard() {
           </CardHeader>
           <CardContent>
             <ChartContainer config={activityConfig} className="h-[160px] w-full">
-              <BarChart data={stats.activity} barSize={24}>
+              <BarChart data={activityData} barSize={24}>
                 <CartesianGrid vertical={false} />
                 <XAxis dataKey="date" tickLine={false} axisLine={false} tickMargin={8} />
                 <ChartTooltip content={<ChartTooltipContent hideLabel />} />
@@ -218,8 +187,8 @@ export function ScoreDashboard() {
             <CardTitle>By Difficulty</CardTitle>
             <CardDescription>Solved per level</CardDescription>
           </CardHeader>
-          <CardContent className="flex items-center justify-center">
-            <ChartContainer config={difficultyConfig} className="h-[160px] w-full">
+          <CardContent className="flex items-center gap-4">
+            <ChartContainer config={difficultyConfig} className="h-[160px] flex-1 min-w-0">
               <RadialBarChart
                 data={difficultyData}
                 innerRadius={30}
@@ -235,7 +204,7 @@ export function ScoreDashboard() {
                 </RadialBar>
               </RadialBarChart>
             </ChartContainer>
-            <div className="flex flex-col gap-1.5 text-xs shrink-0">
+            <div className="flex flex-col gap-1.5 text-xs shrink-0 min-w-[80px]">
               {difficultyData.map(d => (
                 <div key={d.level} className="flex items-center gap-1.5">
                   <div className="size-2 rounded-full" style={{ backgroundColor: d.fill }} />

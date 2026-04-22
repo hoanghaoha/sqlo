@@ -5,6 +5,12 @@ from app.models.exercise import CreateExerciseRequest, HintRequest, SubmitReques
 from app.db import supabase
 from app.services.exercise import create_exercise
 from app.services.dataset import query_dataset
+from app.services.score import (
+    record_failed_submit,
+    record_hint,
+    record_solution_viewed,
+    record_solved,
+)
 
 router = APIRouter()
 
@@ -122,6 +128,11 @@ async def submit_exercise_endpoint(
         map(tuple, user_result["rows"])
     ) == sorted(map(tuple, solution_result["rows"]))
 
+    if solved:
+        record_solved(user_id, exercise_id)
+    else:
+        record_failed_submit(user_id, exercise_id)
+
     return {
         "solved": solved,
         "user_result": user_result,
@@ -143,7 +154,29 @@ async def create_hint_endpoint(
         solution=body.solution,
     )
 
+    record_hint(user_id, body.exercise_id)
+
     return {"hint": hint}
+
+
+@router.post("/exercise/{exercise_id}/solution")
+async def view_solution_endpoint(
+    exercise_id: str, user_id: str = Depends(get_current_user)
+):
+    exercise = (
+        supabase.table("exercises")
+        .select("solution")
+        .eq("id", exercise_id)
+        .eq("user_id", user_id)
+        .single()
+        .execute()
+    )
+    if not exercise.data:
+        raise HTTPException(status_code=404, detail="Exercise not found")
+
+    record_solution_viewed(user_id, exercise_id)
+
+    return {"solution": exercise.data["solution"]}  # type: ignore
 
 
 @router.delete("/exercise/{exercise_id}")
