@@ -15,6 +15,22 @@ from app.services.score import (
 router = APIRouter()
 
 
+def _require_exercise_access(exercise_id: str, user_id: str) -> dict:
+    result = (
+        supabase.table("exercises")
+        .select("*")
+        .eq("id", exercise_id)
+        .single()
+        .execute()
+    )
+    if not result.data:
+        raise HTTPException(status_code=404, detail="Exercise not found")
+    ex = result.data
+    if ex["user_id"] != user_id and not ex.get("visibility"):
+        raise HTTPException(status_code=403, detail="Access denied")
+    return ex
+
+
 @router.get("/")
 async def get_user_exercises_endpoint(user_id: str = Depends(get_current_user)):
     result = (
@@ -24,8 +40,58 @@ async def get_user_exercises_endpoint(user_id: str = Depends(get_current_user)):
         .order("created_at", desc=True)
         .execute()
     )
-
     return result.data
+
+
+@router.get("/community")
+async def get_community_exercises_endpoint(
+    level: str | None = None,
+    industry: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+    user_id: str = Depends(get_current_user),
+):
+    query = (
+        supabase.table("exercises")
+        .select("*,datasets(industry)")
+        .eq("visibility", True)
+        .order("created_at", desc=True)
+        .range(offset, offset + limit - 1)
+    )
+    if level:
+        query = query.eq("level", level)
+
+    result = query.execute()
+    exercises = result.data or []
+
+    if industry:
+        exercises = [
+            e for e in exercises
+            if (e.get("datasets") or {}).get("industry") == industry
+        ]
+
+    user_ids = list({e["user_id"] for e in exercises})
+    author_map: dict[str, dict] = {}
+    if user_ids:
+        authors = (
+            supabase.table("leaderboard")
+            .select("user_id,display_name,avatar_url")
+            .in_("user_id", user_ids)
+            .execute()
+        )
+        author_map = {a["user_id"]: a for a in (authors.data or [])}
+
+    for ex in exercises:
+        author = author_map.get(ex["user_id"], {})
+        ex["author_name"] = author.get("display_name") or "Anonymous"
+        ex["author_avatar"] = author.get("avatar_url")
+        ex["industry"] = (ex.get("datasets") or {}).get("industry")
+        ex["is_owner"] = ex["user_id"] == user_id
+        ex.pop("datasets", None)
+        if not ex["is_owner"]:
+            ex.pop("solution", None)
+
+    return exercises
 
 
 @router.get("/{dataset_id}")
@@ -40,7 +106,6 @@ async def get_dataset_exercises_endpoint(
         .order("created_at", desc=True)
         .execute()
     )
-
     return result.data
 
 
@@ -48,16 +113,10 @@ async def get_dataset_exercises_endpoint(
 async def get_exercise_endpoint(
     exercises_id: str, user_id: str = Depends(get_current_user)
 ):
-    result = (
-        supabase.table("exercises")
-        .select("*")
-        .eq("user_id", user_id)
-        .eq("id", exercises_id)
-        .single()
-        .execute()
-    )
-
-    return result.data
+    ex = _require_exercise_access(exercises_id, user_id)
+    if ex["user_id"] != user_id:
+        ex.pop("solution", None)
+    return ex
 
 
 @router.post("/")
@@ -93,22 +152,12 @@ async def create_exercise_endpoint(
 async def submit_exercise_endpoint(
     exercise_id: str, body: SubmitRequest, user_id: str = Depends(get_current_user)
 ):
-    exercise = (
-        supabase.table("exercises")
-        .select("solution,dataset_id")
-        .eq("id", exercise_id)
-        .eq("user_id", user_id)
-        .single()
-        .execute()
-    )
-    if not exercise.data:
-        raise HTTPException(status_code=404, detail="Exercise not found")
+    ex = _require_exercise_access(exercise_id, user_id)
 
     dataset = (
         supabase.table("datasets")
         .select("db_path")
-        .eq("id", exercise.data["dataset_id"])  # type: ignore
-        .eq("user_id", user_id)
+        .eq("id", ex["dataset_id"])
         .single()
         .execute()
     )
@@ -122,7 +171,7 @@ async def submit_exercise_endpoint(
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-    solution_result = query_dataset(db_path, exercise.data["solution"])  # type: ignore
+    solution_result = query_dataset(db_path, ex["solution"])
 
     solved = user_result["columns"] == solution_result["columns"] and sorted(
         map(tuple, user_result["rows"])
@@ -144,8 +193,8 @@ async def submit_exercise_endpoint(
 async def create_hint_endpoint(
     body: HintRequest, user_id: str = Depends(get_current_user)
 ):
-    if not user_id:
-        raise HTTPException(status_code=400, detail="User not found")
+    _require_exercise_access(body.exercise_id, user_id)
+
     hint = await generate_hint(
         sql=body.sql,
         dataset_schema=body.dataset_schema,
@@ -163,9 +212,21 @@ async def create_hint_endpoint(
 async def view_solution_endpoint(
     exercise_id: str, user_id: str = Depends(get_current_user)
 ):
+    ex = _require_exercise_access(exercise_id, user_id)
+
+    record_solution_viewed(user_id, exercise_id)
+
+    return {"solution": ex["solution"]}
+
+
+@router.put("/exercise/{exercise_id}/visibility")
+async def update_visibility_endpoint(
+    exercise_id: str,
+    user_id: str = Depends(get_current_user),
+):
     exercise = (
         supabase.table("exercises")
-        .select("solution")
+        .select("visibility")
         .eq("id", exercise_id)
         .eq("user_id", user_id)
         .single()
@@ -174,9 +235,12 @@ async def view_solution_endpoint(
     if not exercise.data:
         raise HTTPException(status_code=404, detail="Exercise not found")
 
-    record_solution_viewed(user_id, exercise_id)
+    new_visibility = not exercise.data["visibility"]
+    supabase.table("exercises").update({"visibility": new_visibility}).eq(
+        "id", exercise_id
+    ).execute()
 
-    return {"solution": exercise.data["solution"]}  # type: ignore
+    return {"visibility": "public" if new_visibility else "private"}
 
 
 @router.delete("/exercise/{exercise_id}")

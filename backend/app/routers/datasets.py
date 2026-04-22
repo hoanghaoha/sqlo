@@ -45,7 +45,6 @@ async def get_dataset_endpoint(
         supabase.table("datasets")
         .select("*")
         .eq("id", dataset_id)
-        .eq("user_id", user_id)
         .single()
         .execute()
     )
@@ -53,7 +52,22 @@ async def get_dataset_endpoint(
     if not result.data:
         raise HTTPException(status_code=404, detail="Dataset not found")
 
-    return result.data
+    dataset = result.data
+    if dataset["user_id"] == user_id:
+        return dataset
+
+    public_ex = (
+        supabase.table("exercises")
+        .select("id")
+        .eq("dataset_id", dataset_id)
+        .eq("visibility", True)
+        .limit(1)
+        .execute()
+    )
+    if not public_ex.data:
+        raise HTTPException(status_code=403, detail="Access denied")
+
+    return dataset
 
 
 @router.patch("/{dataset_id}")

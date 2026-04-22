@@ -40,7 +40,6 @@ def _get_exercise_meta(user_id: str, exercise_id: str) -> dict:
         supabase.table("exercises")
         .select("id,level,datasets(industry)")
         .eq("id", exercise_id)
-        .eq("user_id", user_id)
         .single()
         .execute()
     )

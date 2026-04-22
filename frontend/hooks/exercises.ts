@@ -1,5 +1,5 @@
 import { apiFetch } from "@/lib/api";
-import { Exercise } from "@/lib/types";
+import { CommunityExercise, Exercise } from "@/lib/types";
 import { useCallback, useEffect, useState } from "react";
 
 export function useUserExercises() {
@@ -37,5 +37,27 @@ export function useExercise(exerciseId: string) {
   useEffect(() => { load() }, [load])
 
   return exercise
+}
+
+export function useCommunityExercises(level?: string, industry?: string) {
+  const [exercises, setExercises] = useState<CommunityExercise[] | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    try {
+      const params = new URLSearchParams()
+      if (level) params.set("level", level)
+      if (industry) params.set("industry", industry)
+      const data = await apiFetch<CommunityExercise[]>(`/exercises/community?${params}`)
+      setExercises(data)
+    } finally {
+      setLoading(false)
+    }
+  }, [level, industry])
+
+  useEffect(() => { load() }, [load])
+
+  return { exercises, loading, refresh: load }
 }
 

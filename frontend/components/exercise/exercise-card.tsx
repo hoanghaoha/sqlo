@@ -3,17 +3,19 @@ import { Button } from "../ui/button"
 import ReactMarkdown from "react-markdown"
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "../ui/hover-card"
 import { Item, ItemActions, ItemContent, ItemDescription, ItemFooter, ItemTitle } from "../ui/item"
-import { IconArrowRight, IconTrash } from "@tabler/icons-react"
+import { IconArrowRight, IconGlobe, IconLock, IconTrash } from "@tabler/icons-react"
 import { Badge } from "../ui/badge"
 import { useRouter } from "next/navigation"
 import { apiFetch } from "@/lib/api"
 import { EXERCISE_LEVEL_MAP, DATASET_INDUSTRIES } from "@/lib/const"
 import { useDataset } from "@/hooks/datasets"
+import { useState } from "react"
 
-const ExerciseCard = ({ exercise, onDeleted, includeIndustry }: { exercise: Exercise, includeIndustry: boolean, onDeleted?: () => void }) => {
+const ExerciseCard = ({ exercise, onDeleted, onUpdated, includeIndustry }: { exercise: Exercise, includeIndustry: boolean, onDeleted?: () => void, onUpdated?: () => void }) => {
   const dataset = useDataset(exercise.dataset_id)
   const router = useRouter()
   const level = EXERCISE_LEVEL_MAP[exercise.level]
+  const [toggling, setToggling] = useState(false)
   const LevelIcon = level?.icon
   const industry = DATASET_INDUSTRIES.find(i => i.value === dataset?.industry)
   const IndustryIcon = industry?.icon
@@ -68,6 +70,26 @@ const ExerciseCard = ({ exercise, onDeleted, includeIndustry }: { exercise: Exer
         </ItemDescription>
       </ItemContent>
       <ItemActions>
+        <Button
+          size="icon"
+          variant="outline"
+          disabled={toggling}
+          title={exercise.visibility === true ? "Make private" : "Make public"}
+          onClick={async () => {
+            setToggling(true)
+            try {
+              await apiFetch(`/exercises/exercise/${exercise.id}/visibility`, { method: "PUT" })
+              onUpdated?.()
+            } finally {
+              setToggling(false)
+            }
+          }}
+        >
+          {exercise.visibility === true
+            ? <IconGlobe className="size-4 text-primary" />
+            : <IconLock className="size-4 text-muted-foreground" />
+          }
+        </Button>
         <Button size={"icon"} onClick={() => router.push(`/practice/${exercise.id}`)}>
           <IconArrowRight />
         </Button>

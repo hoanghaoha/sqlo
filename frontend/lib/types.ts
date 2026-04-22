@@ -47,6 +47,29 @@ export interface Exercise {
   topics: string[]
   level: string
   solution: string
+  visibility: boolean
+}
+
+export interface CommunityExercise extends Omit<Exercise, "solution"> {
+  industry: string | null
+  author_name: string
+  author_avatar: string | null
+  is_owner: boolean
+}
+
+export interface LeaderboardEntry {
+  user_id: string
+  display_name: string
+  avatar_url: string | null
+  total_score: number
+  solved_count: number
+  rank_name: string
+  rank: number | null
+}
+
+export interface LeaderboardResponse {
+  entries: LeaderboardEntry[]
+  current_user: LeaderboardEntry | null
 }
 
 export interface ScoreSummary {
