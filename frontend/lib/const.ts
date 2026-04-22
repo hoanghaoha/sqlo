@@ -53,7 +53,7 @@ export const data: {
     { title: "Exercises", url: "/exercises", icon: IconTriangleSquareCircle },
   ],
   navUser: [
-    { title: "Account", url: "/account", icon: IconUserCircle },
+    { title: "Profile", url: "/profile", icon: IconUserCircle },
     { title: "Feedback", url: "/feedback", icon: IconHeartShare },
     { title: "Upgrade Plan", url: "/plan", icon: IconChevronsUp },
   ],

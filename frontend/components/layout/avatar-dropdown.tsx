@@ -23,7 +23,7 @@ import { Badge } from "@/components/ui/badge"
 export function AvatarDropdown() {
   const router = useRouter()
   const user = useAuth()
-  const profile = useProfile()
+  const { profile } = useProfile()
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
