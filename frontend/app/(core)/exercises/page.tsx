@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useCommunityExercises } from "@/hooks/exercises"
-import CommunityExerciseCard from "@/components/exercise/community-exercise-card"
+import ExerciseCard from "@/components/exercise/exercise-card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DATASET_INDUSTRIES, EXERCISE_LEVELS } from "@/lib/const"
 
@@ -63,10 +63,10 @@ const Page = () => {
       ) : (
         <div className="flex flex-col gap-4">
           {exercises?.map(exercise => (
-            <CommunityExerciseCard
+            <ExerciseCard
               key={exercise.id}
               exercise={exercise}
-              onVisibilityToggled={refresh}
+              onUpdated={refresh}
             />
           ))}
         </div>

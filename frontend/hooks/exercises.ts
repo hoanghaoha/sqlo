@@ -1,5 +1,5 @@
 import { apiFetch } from "@/lib/api";
-import { CommunityExercise, Exercise } from "@/lib/types";
+import { Exercise } from "@/lib/types";
 import { useCallback, useEffect, useState } from "react";
 
 export function useUserExercises() {
@@ -40,7 +40,7 @@ export function useExercise(exerciseId: string) {
 }
 
 export function useCommunityExercises(level?: string, industry?: string) {
-  const [exercises, setExercises] = useState<CommunityExercise[] | null>(null)
+  const [exercises, setExercises] = useState<Exercise[] | null>(null)
   const [loading, setLoading] = useState(true)
 
   const load = useCallback(async () => {

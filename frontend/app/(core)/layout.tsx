@@ -3,6 +3,7 @@
 import { AppSidebar } from "@/components/layout/app-sidebar"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { TooltipProvider } from "@/components/ui/tooltip"
+import { Toaster } from "@/components/ui/sonner"
 
 
 export default function CoreLayout({ children }: { children: React.ReactNode }) {
@@ -21,6 +22,7 @@ export default function CoreLayout({ children }: { children: React.ReactNode }) 
           <SidebarInset>
             {children}
           </SidebarInset>
+          <Toaster />
         </SidebarProvider>
       </TooltipProvider>
     </div>

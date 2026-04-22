@@ -239,24 +239,40 @@ OUTPUT FORMAT
 """
 
 
+SIZE_PROFILES = {
+    "small": {
+        "description": "3–4 tables, 1–2 foreign key relationships, minimal nullable columns, simple enums",
+        "row_guidance": "main table 200–400 rows, lookup tables 5–20 rows",
+    },
+    "medium": {
+        "description": "5–6 tables, 3–4 foreign key relationships, at least one junction/bridge table, moderate nullable columns, richer enums",
+        "row_guidance": "main table 800–1500 rows, dimension tables 50–200 rows, junction table 2000–5000 rows",
+    },
+    "large": {
+        "description": "7–9 tables, multiple fact tables, many foreign key relationships, complex enums with 5+ values, many nullable columns with varied null rates",
+        "row_guidance": "main fact table 4000–8000 rows, secondary fact tables 1000–3000 rows, dimension tables 100–500 rows",
+    },
+}
+
+
 def build_user_prompt(industry: str, description: str, size: str) -> str:
-    row_targets = {
-        "small": "main table ~300 rows, related tables proportionally smaller",
-        "medium": "main table ~1000 rows, related tables proportionally smaller",
-        "large": "main table ~5000 rows, related tables proportionally smaller",
-    }
+    profile = SIZE_PROFILES.get(size, SIZE_PROFILES["medium"])
 
     return f"""
 Generate a database schema for:
 Industry:    {industry}
 Description: {description}
-Size:        {row_targets.get(size, row_targets["medium"])}
+Size:        {size}
+
+Schema requirements for {size} size:
+- Structure:  {profile["description"]}
+- Row counts: {profile["row_guidance"]}
 
 Design a schema that:
 - Makes sense for this specific industry
-- Enables interesting SQL queries (JOINs, GROUP BY, HAVING, window functions, subqueries)
-- Has realistic data distributions for this industry
 - Uses column names a real {industry} business would use
+- Has realistic data distributions for this industry
+- Matches the structure and row counts above exactly
 """
 
 

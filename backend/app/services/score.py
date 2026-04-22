@@ -72,7 +72,7 @@ def _upsert(user_id: str, meta: dict, patch: dict) -> dict:
         supabase.table("scores").insert(row).execute()
         return row
 
-    if existing["solved"] or existing["used_solution"]:
+    if existing.get("solved"):
         return existing
 
     merged = {**existing, **patch}
@@ -83,9 +83,9 @@ def _upsert(user_id: str, meta: dict, patch: dict) -> dict:
         merged["used_solution"],
     )
     update_keys = set(patch.keys()) | {"score"}
-    supabase.table("scores").update({k: merged[k] for k in update_keys}).eq(
-        "id", existing["id"]
-    ).execute()
+    supabase.table("scores").update(
+        {k: merged[k] for k in update_keys}
+    ).eq("user_id", user_id).eq("exercise_id", meta["exercise_id"]).execute()
     return merged
 
 

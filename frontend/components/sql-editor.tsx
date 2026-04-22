@@ -8,6 +8,7 @@ import CodeMirror from "@uiw/react-codemirror"
 import { sql } from "@codemirror/lang-sql"
 import { oneDark } from "@codemirror/theme-one-dark"
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "./ui/drawer"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "./ui/alert-dialog"
 import { format } from "sql-formatter"
 import { useExercise } from "@/hooks/exercises"
 import { useDataset } from "@/hooks/datasets"
@@ -61,6 +62,7 @@ const SqlEditor = ({ dataset, exercise }: SqlEditorProps) => {
   const [isSubmit, setIsSubmit] = useState(false)
   const [solved, setSolved] = useState<boolean | null>(null)
   const [hintLoading, setHintLoading] = useState(false)
+  const [solutionConfirmOpen, setSolutionConfirmOpen] = useState(false)
 
   const runQuery = async () => {
     if (!query.trim()) return
@@ -178,7 +180,7 @@ const SqlEditor = ({ dataset, exercise }: SqlEditorProps) => {
                 <IconBulb className="text-yellow-300" />
                 {hintLoading ? "Loading..." : "Hint"}
               </Button>
-              <Button size="sm" variant="outline" onClick={loadSolution}>
+              <Button size="sm" variant="outline" onClick={() => setSolutionConfirmOpen(true)}>
                 <IconPuzzle className="text-purple-300" />
                 Solution
               </Button>
@@ -226,6 +228,21 @@ const SqlEditor = ({ dataset, exercise }: SqlEditorProps) => {
           </>
         )}
       </div>
+
+      <AlertDialog open={solutionConfirmOpen} onOpenChange={setSolutionConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>View solution?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Viewing the solution will set your score to 0 for this exercise. You won't be able to earn points after this.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={loadSolution}>View Solution</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <Drawer direction="bottom" open={open} onOpenChange={setOpen}>
         <DrawerContent className="max-h-[60vh]">

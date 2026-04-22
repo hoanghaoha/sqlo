@@ -18,7 +18,6 @@ const Page = () => {
           <ExerciseCard
             key={exercise.id}
             exercise={exercise}
-            includeIndustry={true}
             onDeleted={refresh}
             onUpdated={refresh}
           />

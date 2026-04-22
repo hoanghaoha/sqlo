@@ -13,11 +13,14 @@ import { IconPlus, IconX, IconChevronDown } from "@tabler/icons-react"
 import { Exercise, Dataset } from "@/lib/types"
 import { EXERCISE_LEVELS, EXERCISE_TOPIC_GROUPS, EXERCISE_MAX_TOPICS } from "@/lib/const"
 import { useDatasets } from "@/hooks/datasets"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 const ExerciseCreateButton = ({ dataset, onCreated }: {
   dataset?: Dataset
   onCreated?: (exercise: Exercise) => void
 }) => {
+  const router = useRouter()
   const { datasets } = useDatasets()
   const [datasetId, setDatasetId] = useState(dataset?.id)
   const [open, setOpen] = useState(false)
@@ -78,6 +81,17 @@ const ExerciseCreateButton = ({ dataset, onCreated }: {
       setSelectedGroups([])
       setAdditionalInput("")
       setLevel("medium")
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : ""
+      if (msg === "plan_limit_exercises") {
+        setOpen(false)
+        toast.warning("Exercise limit reached", {
+          description: "Free plan allows 5 exercises. Upgrade to Pro for unlimited.",
+          action: { label: "Upgrade", onClick: () => router.push("/plan") },
+        })
+      } else {
+        toast.error("Failed to generate exercise", { description: msg })
+      }
     } finally {
       setLoading(false)
     }

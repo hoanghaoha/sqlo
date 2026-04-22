@@ -7,6 +7,7 @@ from app.models.dataset import (
     UpdateDatasetRequest,
 )
 from app.services.dataset import create_dataset, query_dataset
+from app.services.plan import check_dataset_limit
 
 router = APIRouter()
 
@@ -15,11 +16,14 @@ router = APIRouter()
 async def create_dataset_endpoint(
     body: CreateDatasetRequest, user_id: str = Depends(get_current_user)
 ):
+    check_dataset_limit(user_id, body.size)
     try:
         result = await create_dataset(
             user_id, body.name, body.industry, body.description, body.size
         )
         return result
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

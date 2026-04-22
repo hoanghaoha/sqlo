@@ -15,46 +15,28 @@ const tiers = [
     cta: "Get Started",
     highlight: false,
     features: [
-      "2 datasets",
-      "10 problems per dataset",
-      "3 AI solves per day",
-      "Community datasets",
-      "Basic score tracking",
+      "2 datasets stored (small only)",
+      "5 exercises stored",
+      "Unlimited SQL practice",
+      "Hints & score tracking",
+      "Community exercises",
+      "Leaderboard",
     ],
   },
   {
     name: "Pro",
-    price: "$12",
+    price: "$9",
     period: "per month",
-    yearlyNote: "$99/yr — save 31%",
+    yearlyNote: "$79/yr — save 27%",
     description: "For serious learners and interview prep.",
-    cta: "Start Pro Free",
+    cta: "Start Pro",
     highlight: true,
     badge: "Most Popular",
     features: [
-      "Unlimited datasets",
-      "Unlimited problems",
-      "Unlimited AI solves",
-      "CSV upload",
-      "Concept analytics",
-      "Full attempt history",
-    ],
-  },
-  {
-    name: "Teacher",
-    price: "$49",
-    period: "per month",
-    yearlyNote: "$399/yr",
-    description: "For instructors and bootcamps.",
-    cta: "Start Teaching",
-    highlight: false,
-    features: [
-      "Everything in Pro",
-      "Cohort management",
-      "Assignments with due dates",
-      "Student progress dashboard",
-      "Class leaderboard",
-      "CSV export of scores",
+      "Unlimited datasets stored",
+      "Small / Medium / Large datasets",
+      "Unlimited exercises",
+      "Everything in Free",
     ],
   },
 ]
@@ -62,13 +44,13 @@ const tiers = [
 const Pricing = () => {
   return (
     <section id="pricing" className="px-6 py-24 bg-muted/30">
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-3xl mx-auto">
         <div className="text-center mb-16">
           <h2 className="text-3xl font-bold tracking-tight">Simple pricing</h2>
           <p className="text-muted-foreground mt-3">Start free. Upgrade when you hit the wall.</p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 pt-5">
+        <div className="grid md:grid-cols-2 gap-6 pt-5">
           {tiers.map((tier) => (
             <Card
               key={tier.name}

@@ -10,14 +10,22 @@ import { Label } from "../ui/label"
 import { IconPlus } from "@tabler/icons-react"
 import { Textarea } from "../ui/textarea"
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select"
+import { Badge } from "../ui/badge"
 import { DATASET_INDUSTRIES, DATASET_SIZES } from "@/lib/const"
+import { useProfile } from "@/hooks/user"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 const DatasetCreateButton = ({ onCreated }: { onCreated?: () => void }) => {
+  const router = useRouter()
+  const { profile } = useProfile()
+  const isPro = profile?.plan === "pro"
+
   const [open, setOpen] = useState(false)
   const [name, setName] = useState("")
   const [industry, setIndustry] = useState("")
   const [description, setDescription] = useState("")
-  const [size, setSize] = useState("")
+  const [size, setSize] = useState("small")
   const [loading, setLoading] = useState(false)
 
   const handleCreateDataset = async (e: React.SubmitEvent) => {
@@ -33,9 +41,25 @@ const DatasetCreateButton = ({ onCreated }: { onCreated?: () => void }) => {
       setIndustry("")
       setDescription("")
       setSize("")
+      onCreated?.()
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : ""
+      if (msg === "plan_limit_datasets") {
+        setOpen(false)
+        toast.warning("Dataset limit reached", {
+          description: "Free plan allows 2 datasets. Upgrade to Pro for unlimited.",
+          action: { label: "Upgrade", onClick: () => router.push("/plan") },
+        })
+      } else if (msg === "plan_limit_dataset_size") {
+        toast.warning("Pro feature", {
+          description: "Medium and Large datasets require a Pro plan.",
+          action: { label: "Upgrade", onClick: () => router.push("/plan") },
+        })
+      } else {
+        toast.error("Failed to create dataset", { description: msg })
+      }
     } finally {
       setLoading(false)
-      onCreated?.()
     }
   }
 
@@ -91,14 +115,18 @@ const DatasetCreateButton = ({ onCreated }: { onCreated?: () => void }) => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    {DATASET_SIZES.map(s => (
-                      <SelectItem key={s.value} value={s.value}>
-                        <span className="flex items-center gap-2">
-                          <s.icon className="h-4 w-4" />
-                          {s.label}
-                        </span>
-                      </SelectItem>
-                    ))}
+                    {DATASET_SIZES.map(s => {
+                      const locked = !isPro && s.value !== "small"
+                      return (
+                        <SelectItem key={s.value} value={s.value} disabled={locked}>
+                          <span className="flex items-center gap-2">
+                            <s.icon className="h-4 w-4" />
+                            {s.label}
+                            {locked && <Badge variant="secondary" className="text-[10px] px-1 py-0 h-4">Pro</Badge>}
+                          </span>
+                        </SelectItem>
+                      )
+                    })}
                   </SelectGroup>
                 </SelectContent>
               </Select>

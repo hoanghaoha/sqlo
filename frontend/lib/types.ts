@@ -48,13 +48,12 @@ export interface Exercise {
   level: string
   solution: string
   visibility: boolean
-}
-
-export interface CommunityExercise extends Omit<Exercise, "solution"> {
-  industry: string | null
-  author_name: string
-  author_avatar: string | null
-  is_owner: boolean
+  is_solved?: boolean
+  // populated for community exercises
+  industry?: string | null
+  author_name?: string
+  author_avatar?: string | null
+  is_owner?: boolean
 }
 
 export interface LeaderboardEntry {

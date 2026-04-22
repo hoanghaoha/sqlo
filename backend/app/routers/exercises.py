@@ -1,9 +1,11 @@
+import uuid
 from fastapi import APIRouter, Depends, HTTPException
 from app.auth.jwt import get_current_user
 from app.engine.hint_generator.utils import generate_hint
 from app.models.exercise import CreateExerciseRequest, HintRequest, SubmitRequest
 from app.db import supabase
 from app.services.exercise import create_exercise
+from app.services.plan import check_exercise_limit
 from app.services.dataset import query_dataset
 from app.services.score import (
     record_failed_submit,
@@ -13,6 +15,24 @@ from app.services.score import (
 )
 
 router = APIRouter()
+
+
+def _attach_solved(exercises: list[dict], user_id: str) -> list[dict]:
+    if not exercises:
+        return exercises
+    ids = [e["id"] for e in exercises]
+    scores = (
+        supabase.table("scores")
+        .select("exercise_id")
+        .eq("user_id", user_id)
+        .eq("solved", True)
+        .in_("exercise_id", ids)
+        .execute()
+    )
+    solved_ids = {s["exercise_id"] for s in (scores.data or [])}
+    for e in exercises:
+        e["is_solved"] = e["id"] in solved_ids
+    return exercises
 
 
 def _require_exercise_access(exercise_id: str, user_id: str) -> dict:
@@ -40,7 +60,7 @@ async def get_user_exercises_endpoint(user_id: str = Depends(get_current_user)):
         .order("created_at", desc=True)
         .execute()
     )
-    return result.data
+    return _attach_solved(result.data or [], user_id)
 
 
 @router.get("/community")
@@ -88,10 +108,8 @@ async def get_community_exercises_endpoint(
         ex["industry"] = (ex.get("datasets") or {}).get("industry")
         ex["is_owner"] = ex["user_id"] == user_id
         ex.pop("datasets", None)
-        if not ex["is_owner"]:
-            ex.pop("solution", None)
 
-    return exercises
+    return _attach_solved(exercises, user_id)
 
 
 @router.get("/{dataset_id}")
@@ -113,16 +131,14 @@ async def get_dataset_exercises_endpoint(
 async def get_exercise_endpoint(
     exercises_id: str, user_id: str = Depends(get_current_user)
 ):
-    ex = _require_exercise_access(exercises_id, user_id)
-    if ex["user_id"] != user_id:
-        ex.pop("solution", None)
-    return ex
+    return _require_exercise_access(exercises_id, user_id)
 
 
 @router.post("/")
 async def create_exercise_endpoint(
     body: CreateExerciseRequest, user_id: str = Depends(get_current_user)
 ):
+    check_exercise_limit(user_id)
     dataset = (
         supabase.table("datasets")
         .select("industry,schema")
@@ -177,10 +193,13 @@ async def submit_exercise_endpoint(
         map(tuple, user_result["rows"])
     ) == sorted(map(tuple, solution_result["rows"]))
 
-    if solved:
-        record_solved(user_id, exercise_id)
-    else:
-        record_failed_submit(user_id, exercise_id)
+    try:
+        if solved:
+            record_solved(user_id, exercise_id)
+        else:
+            record_failed_submit(user_id, exercise_id)
+    except Exception as e:
+        print(f"[score] record error: {e}")
 
     return {
         "solved": solved,
@@ -247,8 +266,34 @@ async def update_visibility_endpoint(
 async def delete_exercise_endpoint(
     exercise_id: str, user_id: str = Depends(get_current_user)
 ):
-    supabase.table("exercises").delete().eq("id", exercise_id).eq(
-        "user_id", user_id
-    ).execute()
+    try:
+        supabase.table("exercises").delete().eq("id", exercise_id).eq(
+            "user_id", user_id
+        ).execute()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
     return {"delete": True}
+
+
+@router.post("/exercise/{exercise_id}/save")
+async def save_exercise_endpoint(
+    exercise_id: str, user_id: str = Depends(get_current_user)
+):
+    ex = _require_exercise_access(exercise_id, user_id)
+    check_exercise_limit(user_id)
+
+    new_id = str(uuid.uuid4())
+    supabase.table("exercises").insert({
+        "id": new_id,
+        "user_id": user_id,
+        "dataset_id": ex["dataset_id"],
+        "name": ex["name"],
+        "description": ex["description"],
+        "topics": ex["topics"],
+        "level": ex["level"],
+        "solution": ex["solution"],
+        "visibility": False,
+    }).execute()
+
+    return {"id": new_id}
