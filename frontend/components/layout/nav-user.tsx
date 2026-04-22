@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { IconDotsVertical, IconLogout } from "@tabler/icons-react"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu"
@@ -6,13 +7,17 @@ import { useAuth } from "@/context/AuthContext"
 import { signOut } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import { data } from "@/lib/const"
+import { FeedbackDialog } from "./feedback-dialog"
 
 const NavUser = () => {
   const { isMobile } = useSidebar()
   const { user } = useAuth()
   const router = useRouter()
+  const [feedbackOpen, setFeedbackOpen] = useState(false)
 
   return (
+    <>
+    <FeedbackDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
@@ -52,7 +57,10 @@ const NavUser = () => {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               {data.navUser.map(item => (
-                <DropdownMenuItem key={item.title} onClick={() => router.push(item.url)}>
+                <DropdownMenuItem
+                  key={item.title}
+                  onClick={() => item.title === "Feedback" ? setFeedbackOpen(true) : router.push(item.url)}
+                >
                   <item.icon />
                   {item.title}
                 </DropdownMenuItem>
@@ -72,6 +80,7 @@ const NavUser = () => {
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
+    </>
   )
 }
 
